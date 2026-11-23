@@ -1,6 +1,6 @@
 namespace GLauncher.Core.Java;
 
-public enum ModLoader { Vanilla, Fabric, Forge }
+public enum ModLoader { Vanilla, Fabric, Quilt, Forge, NeoForge }
 
 public sealed class Profile
 {
@@ -27,6 +27,9 @@ public sealed class Profile
 
     public int? Width { get; set; }
     public int? Height { get; set; }
+
+    /// <summary>Сервер для автоматического входа после запуска: «host» или «host:port». Пусто — без автовхода.</summary>
+    public string? ServerAddress { get; set; }
 
     public string ResolveGameDir() =>
         string.IsNullOrWhiteSpace(GameDir) ? Path.Combine(Paths.Instances, Id) : GameDir;

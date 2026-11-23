@@ -27,7 +27,8 @@ public static class Http
         {
             Timeout = TimeSpan.FromMinutes(10),
         };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("gLauncher/0.1");
+        var version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version;
+        client.DefaultRequestHeaders.UserAgent.ParseAdd($"gLauncher/{version?.ToString(3) ?? "0"}");
         return client;
     }
 
@@ -39,6 +40,22 @@ public static class Http
             try
             {
                 return await GetJsonOnceAsync(url, ct, bearer);
+            }
+            catch (Exception ex) when (attempt < 3 && !ct.IsCancellationRequested && IsTransient(ex))
+            {
+                await Task.Delay(700 * attempt, ct);
+            }
+        }
+    }
+
+    /// <summary>GET текста с теми же повторами, что и <see cref="GetJsonAsync"/>.</summary>
+    public static async Task<string> GetStringAsync(string url, CancellationToken ct = default)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            try
+            {
+                return await Client.GetStringAsync(url, ct);
             }
             catch (Exception ex) when (attempt < 3 && !ct.IsCancellationRequested && IsTransient(ex))
             {

@@ -1,5 +1,7 @@
 namespace GLauncher.Core;
 
+public enum AfterLaunchAction { KeepOpen, Minimize, Close }
+
 public sealed class LauncherSettings
 {
     /// <summary>
@@ -12,6 +14,12 @@ public sealed class LauncherSettings
     public string ClientToken { get; set; } = Guid.NewGuid().ToString("N");
 
     public bool ShowSnapshots { get; set; }
+
+    /// <summary>Что делать с окном лаунчера после запуска Java Edition.</summary>
+    public AfterLaunchAction AfterLaunch { get; set; } = AfterLaunchAction.KeepOpen;
+
+    /// <summary>Проверять обновления лаунчера при запуске.</summary>
+    public bool CheckForUpdates { get; set; } = true;
 
     public static LauncherSettings Load()
     {

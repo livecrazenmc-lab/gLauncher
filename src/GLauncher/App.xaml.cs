@@ -8,6 +8,7 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         DispatcherUnhandledException += OnUnhandledException;
+        GLauncher.Core.Updates.UpdateService.CleanupAfterUpdate();
         base.OnStartup(e);
     }
 
