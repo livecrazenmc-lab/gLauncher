@@ -85,6 +85,9 @@ public partial class JavaViewModel : ObservableObject
 
     public async Task LoadVersionsAsync()
     {
+        // Сначала кэш — список появится сразу, даже при медленной сети.
+        _allVersions = VersionRepository.GetCachedVersions();
+        if (_allVersions.Count > 0) FillVersions();
         try
         {
             _allVersions = await VersionRepository.GetVersionsAsync();
@@ -113,9 +116,18 @@ public partial class JavaViewModel : ObservableObject
         foreach (var v in _allVersions.Where(v => v.Type == "release" || (ShowSnapshots && v.Type == "snapshot")))
             McVersions.Add(v.Id);
         if (SelectedProfile is not null && string.IsNullOrEmpty(SelectedProfile.MinecraftVersion) && McVersions.Count > 0)
+        {
+            // Профиль без версии (например, созданный при первом запуске) получает последний релиз.
             EditMcVersion = McVersions[0];
+            SelectedProfile.MinecraftVersion = McVersions[0];
+            _store.Save();
+            CollectionViewSource.GetDefaultView(Profiles).Refresh();
+            ProfileChanged?.Invoke(this, EventArgs.Empty);
+        }
         else
+        {
             EditMcVersion = current;
+        }
     }
 
     partial void OnSelectedProfileChanged(Profile? value)

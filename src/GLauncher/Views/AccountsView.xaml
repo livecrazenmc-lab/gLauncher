@@ -1,45 +1,44 @@
 <UserControl x:Class="GLauncher.Views.AccountsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <DockPanel Margin="8">
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
-            <Button Content="Добавить аккаунт Microsoft" Command="{Binding AddCommand}" Padding="8,4" Margin="0,0,6,0" />
-            <Button Content="Проверить лицензии" Command="{Binding RefreshCommand}" Padding="8,4" Margin="0,0,6,0" />
-            <Button Content="Удалить" Command="{Binding RemoveCommand}" Padding="8,4" />
+    <DockPanel Margin="6">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="Добавить аккаунт Microsoft" Command="{Binding AddCommand}" Background="{StaticResource Brush.Accent}" Margin="0,0,8,0" />
+            <Button Content="Проверить лицензии" Command="{Binding RefreshCommand}" Margin="0,0,8,0" />
+            <Button Content="Удалить" Command="{Binding RemoveCommand}" Style="{StaticResource DangerButton}" />
         </StackPanel>
 
         <!-- Панель входа по коду: видна только во время входа -->
-        <GroupBox DockPanel.Dock="Top" Header="Вход в аккаунт Microsoft" Margin="0,0,0,8"
+        <GroupBox DockPanel.Dock="Top" Header="Вход в аккаунт Microsoft" Margin="0,0,0,10"
                   Visibility="{Binding DeviceCode, Converter={StaticResource NotNullToVisibility}}">
-            <StackPanel Margin="6">
-                <TextBlock Text="1. Откройте страницу входа (уже открыта в браузере):" />
-                <TextBox IsReadOnly="True" Text="{Binding DeviceCode.VerificationUri, Mode=OneWay}" Margin="0,2,0,6" />
-                <TextBlock Text="2. Введите код (уже скопирован в буфер обмена):" />
-                <TextBox IsReadOnly="True" FontSize="22" Text="{Binding DeviceCode.UserCode, Mode=OneWay}" Margin="0,2,0,6" />
+            <StackPanel>
+                <TextBlock Text="1. Откройте страницу входа (уже открыта в браузере):" Style="{StaticResource HintText}" />
+                <TextBox IsReadOnly="True" Text="{Binding DeviceCode.VerificationUri, Mode=OneWay}" Margin="0,4,0,10" />
+                <TextBlock Text="2. Введите код (уже скопирован в буфер обмена):" Style="{StaticResource HintText}" />
+                <TextBox IsReadOnly="True" FontSize="26" FontWeight="Bold" FontFamily="Consolas" TextAlignment="Center"
+                         Text="{Binding DeviceCode.UserCode, Mode=OneWay}" Margin="0,4,0,10" Width="260" HorizontalAlignment="Left" />
                 <StackPanel Orientation="Horizontal">
-                    <Button Content="Открыть страницу" Command="{Binding OpenLoginPageCommand}" Padding="8,4" Margin="0,0,6,0" />
-                    <Button Content="Скопировать код" Command="{Binding CopyCodeCommand}" Padding="8,4" Margin="0,0,6,0" />
-                    <Button Content="Отмена" Command="{Binding CancelLoginCommand}" Padding="8,4" />
+                    <Button Content="Открыть страницу" Command="{Binding OpenLoginPageCommand}" Margin="0,0,8,0" />
+                    <Button Content="Скопировать код" Command="{Binding CopyCodeCommand}" Margin="0,0,8,0" />
+                    <Button Content="Отмена" Command="{Binding CancelLoginCommand}" />
                 </StackPanel>
             </StackPanel>
         </GroupBox>
 
-        <TextBlock DockPanel.Dock="Bottom" Text="{Binding Status}" TextWrapping="Wrap" Margin="0,8,0,0" />
+        <TextBlock DockPanel.Dock="Bottom" Text="{Binding Status}" Style="{StaticResource HintText}" Margin="0,10,0,0" />
 
         <!-- Выбранный элемент = активный аккаунт -->
-        <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}">
+        <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" HorizontalContentAlignment="Stretch">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Margin="4">
-                        <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" />
-                        <TextBlock>
-                            <Run Text="Java Edition:" />
+                        <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" FontSize="15" Effect="{StaticResource Effect.TextShadow}" />
+                        <TextBlock Margin="0,2,0,0">
+                            <Run Text="Java Edition:" Foreground="{StaticResource Brush.TextDim}" />
                             <Run Text="{Binding OwnsJava, Mode=OneWay, Converter={StaticResource LicenseText}}" />
-                            <Run Text="   Bedrock Edition:" />
+                            <Run Text="    Bedrock Edition:" Foreground="{StaticResource Brush.TextDim}" />
                             <Run Text="{Binding OwnsBedrock, Mode=OneWay, Converter={StaticResource LicenseText}}" />
-                        </TextBlock>
-                        <TextBlock>
-                            <Run Text="Xbox:" />
+                            <Run Text="    Xbox:" Foreground="{StaticResource Brush.TextDim}" />
                             <Run Text="{Binding Gamertag, Mode=OneWay, TargetNullValue='—'}" />
                         </TextBlock>
                     </StackPanel>
