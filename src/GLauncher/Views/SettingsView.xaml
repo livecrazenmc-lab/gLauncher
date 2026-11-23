@@ -9,12 +9,21 @@
                                Text="Client ID приложения Azure (Microsoft Entra). Тип учётных записей — «только личные аккаунты Microsoft», включён «Allow public client flows». Приложение должно быть одобрено Mojang для доступа к Minecraft API." />
                     <TextBox Text="{Binding ClientId, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,6" />
                     <StackPanel Orientation="Horizontal">
-                        <Button Content="Сохранить" Command="{Binding SaveCommand}" Background="{StaticResource Brush.Accent}" Margin="0,0,6,0" />
+                        <Button Content="Сохранить" Command="{Binding SaveCommand}" Background="{DynamicResource Brush.Accent}" Margin="0,0,6,0" />
                         <Button Content="Как зарегистрировать приложение" Command="{Binding OpenAzureGuideCommand}" Margin="0,0,6,0" />
                         <Button Content="Заявка на доступ к Minecraft API" Command="{Binding OpenApprovalFormCommand}" />
                     </StackPanel>
                     <TextBlock Text="{Binding Status}" Margin="0,6,0,0" />
                 </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="Оформление" Margin="0,0,0,12">
+                <DockPanel>
+                    <TextBlock Text="Тема:" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding CurrentThemeText}" Style="{StaticResource HintText}"
+                               VerticalAlignment="Center" Margin="10,0,0,0" />
+                    <ComboBox ItemsSource="{Binding ThemeOptions}" SelectedItem="{Binding SelectedTheme}" />
+                </DockPanel>
             </GroupBox>
 
             <GroupBox Header="Запуск игры" Margin="0,0,0,12">
@@ -43,7 +52,27 @@
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="Данные лаунчера">
+            <GroupBox Header="Благодарности" Margin="0,0,0,12" DataContext="{Binding Credits}">
+                <!-- Ники и скины подтягиваются по UUID при каждом запуске (офлайн — из кэша) -->
+                <ItemsControl ItemsSource="{Binding People}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel Margin="0,4">
+                                <Border DockPanel.Dock="Left" Width="44" Height="44" Margin="0,0,12,0"
+                                        Background="{DynamicResource Brush.Face}" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="2">
+                                    <Image Source="{Binding Face}" RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Fill" />
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="15" Effect="{StaticResource Effect.TextShadow}" />
+                                    <TextBlock Text="{Binding Role}" Style="{StaticResource HintText}" />
+                                </StackPanel>
+                            </DockPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </GroupBox>
+
+            <GroupBox Header="Данные лаунчера" Margin="0,0,0,12">
                 <DockPanel>
                     <Button DockPanel.Dock="Right" Content="Открыть" Command="{Binding OpenDataFolderCommand}" Margin="6,0,0,0" />
                     <TextBox IsReadOnly="True" Text="{Binding DataFolder, Mode=OneWay}" VerticalAlignment="Center" />
@@ -52,4 +81,5 @@
         </StackPanel>
     </ScrollViewer>
 </UserControl>
+
 

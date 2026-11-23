@@ -18,6 +18,9 @@ public sealed class LauncherSettings
     /// <summary>Что делать с окном лаунчера после запуска Java Edition.</summary>
     public AfterLaunchAction AfterLaunch { get; set; } = AfterLaunchAction.KeepOpen;
 
+    /// <summary>Тема оформления: Auto (по дате), Blocks, Spring, Summer, Autumn, Winter, NewYear, Easter, Halloween.</summary>
+    public string Theme { get; set; } = "Auto";
+
     /// <summary>Проверять обновления лаунчера при запуске.</summary>
     public bool CheckForUpdates { get; set; } = true;
 

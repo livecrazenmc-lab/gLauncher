@@ -1,9 +1,9 @@
-<UserControl x:Class="GLauncher.Views.AccountsView"
+﻿<UserControl x:Class="GLauncher.Views.AccountsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <DockPanel Margin="6">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
-            <Button Content="Добавить аккаунт Microsoft" Command="{Binding AddCommand}" Background="{StaticResource Brush.Accent}" Margin="0,0,8,0" />
+            <Button Content="Добавить аккаунт Microsoft" Command="{Binding AddCommand}" Background="{DynamicResource Brush.Accent}" Margin="0,0,8,0" />
             <Button Content="Проверить лицензии" Command="{Binding RefreshCommand}" Margin="0,0,8,0" />
             <Button Content="Удалить" Command="{Binding RemoveCommand}" Style="{StaticResource DangerButton}" />
         </StackPanel>
@@ -34,11 +34,11 @@
                     <StackPanel Margin="4">
                         <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" FontSize="15" Effect="{StaticResource Effect.TextShadow}" />
                         <TextBlock Margin="0,2,0,0">
-                            <Run Text="Java Edition:" Foreground="{StaticResource Brush.TextDim}" />
+                            <Run Text="Java Edition:" Foreground="{DynamicResource Brush.TextDim}" />
                             <Run Text="{Binding OwnsJava, Mode=OneWay, Converter={StaticResource LicenseText}}" />
-                            <Run Text="    Bedrock Edition:" Foreground="{StaticResource Brush.TextDim}" />
+                            <Run Text="    Bedrock Edition:" Foreground="{DynamicResource Brush.TextDim}" />
                             <Run Text="{Binding OwnsBedrock, Mode=OneWay, Converter={StaticResource LicenseText}}" />
-                            <Run Text="    Xbox:" Foreground="{StaticResource Brush.TextDim}" />
+                            <Run Text="    Xbox:" Foreground="{DynamicResource Brush.TextDim}" />
                             <Run Text="{Binding Gamertag, Mode=OneWay, TargetNullValue='—'}" />
                         </TextBlock>
                     </StackPanel>
@@ -47,3 +47,4 @@
         </ListBox>
     </DockPanel>
 </UserControl>
+

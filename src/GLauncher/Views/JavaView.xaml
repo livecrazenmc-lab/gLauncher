@@ -1,4 +1,4 @@
-<UserControl x:Class="GLauncher.Views.JavaView"
+﻿<UserControl x:Class="GLauncher.Views.JavaView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid Margin="6">
@@ -30,7 +30,7 @@
                     <DataTemplate>
                         <StackPanel>
                             <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                            <TextBlock FontSize="11" Foreground="{StaticResource Brush.TextDim}">
+                            <TextBlock FontSize="11" Foreground="{DynamicResource Brush.TextDim}">
                                 <Run Text="{Binding MinecraftVersion, Mode=OneWay}" />
                                 <Run Text="·" />
                                 <Run Text="{Binding Loader, Mode=OneWay}" />
@@ -44,7 +44,7 @@
         <!-- Редактор профиля -->
         <DockPanel Grid.Column="1" Grid.Row="0">
             <TextBlock DockPanel.Dock="Top" Text="Настройки профиля" Style="{StaticResource SectionTitle}" Margin="2,0,0,6" />
-            <Border Background="{StaticResource Brush.PanelDeep}" BorderBrush="{StaticResource Brush.Outline}" BorderThickness="2">
+            <Border Background="{DynamicResource Brush.PanelDeep}" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="2">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -128,7 +128,7 @@
 
         <!-- Запуск -->
         <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,10" Padding="12,10"
-                Background="{StaticResource Brush.PanelDeep}" BorderBrush="{StaticResource Brush.Outline}" BorderThickness="2">
+                Background="{DynamicResource Brush.PanelDeep}" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="2">
             <DockPanel>
                 <Button DockPanel.Dock="Right" Content="Отмена" Command="{Binding CancelCommand}" VerticalAlignment="Center"
                         Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" Margin="8,0,0,0" />
@@ -153,3 +153,4 @@
         </DockPanel>
     </Grid>
 </UserControl>
+
