@@ -82,23 +82,30 @@ public sealed class JavaGameLauncher(LauncherSettings settings)
             return installed;
 
         string id, loaderVersion;
-        if (profile.Loader == ModLoader.Fabric)
+        progress?.Report(new($"Установка {profile.Loader}", 0, 0));
+        switch (profile.Loader)
         {
-            progress?.Report(new("Установка Fabric", 0, 0));
-            (id, loaderVersion) = await FabricInstaller.InstallAsync(profile.MinecraftVersion, profile.LoaderVersion, ct);
-        }
-        else
-        {
-            // Установщику Forge нужна Java — берём ту, что требует сама версия Minecraft.
-            var vanilla = await VersionRepository.GetVersionJsonAsync(profile.MinecraftVersion, ct);
-            var component = vanilla["javaVersion"]?["component"].Str() ?? "jre-legacy";
-            var java = string.IsNullOrWhiteSpace(profile.JavaPath)
-                ? await JavaRuntimeManager.EnsureAsync(component, progress, ct)
-                : profile.JavaPath;
+            case ModLoader.Fabric:
+                (id, loaderVersion) = await MetaLoaderInstaller.Fabric.InstallAsync(profile.MinecraftVersion, profile.LoaderVersion, ct);
+                break;
+            case ModLoader.Quilt:
+                (id, loaderVersion) = await MetaLoaderInstaller.Quilt.InstallAsync(profile.MinecraftVersion, profile.LoaderVersion, ct);
+                break;
+            default:
+            {
+                // Установщикам Forge/NeoForge нужна Java — берём ту, что требует сама версия Minecraft.
+                var vanilla = await VersionRepository.GetVersionJsonAsync(profile.MinecraftVersion, ct);
+                var component = vanilla["javaVersion"]?["component"].Str() ?? "jre-legacy";
+                var java = string.IsNullOrWhiteSpace(profile.JavaPath)
+                    ? await JavaRuntimeManager.EnsureAsync(component, progress, ct)
+                    : profile.JavaPath;
 
-            progress?.Report(new("Установка Forge (может занять несколько минут)", 0, 0));
-            (id, loaderVersion) = await ForgeInstaller.InstallAsync(profile.MinecraftVersion, profile.LoaderVersion, java,
-                line => Log?.Invoke(line), ct);
+                progress?.Report(new($"Установка {profile.Loader} (может занять несколько минут)", 0, 0));
+                (id, loaderVersion) = profile.Loader == ModLoader.NeoForge
+                    ? await NeoForgeInstaller.InstallAsync(profile.MinecraftVersion, profile.LoaderVersion, java, line => Log?.Invoke(line), ct)
+                    : await ForgeInstaller.InstallAsync(profile.MinecraftVersion, profile.LoaderVersion, java, line => Log?.Invoke(line), ct);
+                break;
+            }
         }
 
         profile.InstalledVersionId = id;
@@ -115,10 +122,12 @@ public static class LaunchArguments
     {
         var json = game.Json;
         var customResolution = profile.Width is > 0 && profile.Height is > 0;
+        var server = string.IsNullOrWhiteSpace(profile.ServerAddress) ? null : profile.ServerAddress.Trim();
         var features = new Dictionary<string, bool>
         {
             ["has_custom_resolution"] = customResolution,
             ["is_demo_user"] = false,
+            ["is_quick_play_multiplayer"] = server is not null,
         };
 
         var vars = new Dictionary<string, string>
@@ -142,9 +151,10 @@ public static class LaunchArguments
             ["classpath"] = string.Join(Path.PathSeparator, game.Classpath),
             ["classpath_separator"] = Path.PathSeparator.ToString(),
             ["launcher_name"] = "gLauncher",
-            ["launcher_version"] = "0.1",
+            ["launcher_version"] = Updates.UpdateService.CurrentVersionText,
             ["resolution_width"] = (profile.Width ?? 854).ToString(),
             ["resolution_height"] = (profile.Height ?? 480).ToString(),
+            ["quickPlayMultiplayer"] = server ?? "",
         };
 
         var args = new List<string> { $"-Xmx{Math.Max(profile.MemoryMb, 512)}M" };
@@ -168,6 +178,13 @@ public static class LaunchArguments
             args.AddRange(legacy.Split(' ', StringSplitOptions.RemoveEmptyEntries));
             if (customResolution)
                 args.AddRange(["--width", "${resolution_width}", "--height", "${resolution_height}"]);
+        }
+
+        // До 1.20 нет Quick Play — используем старые аргументы --server/--port.
+        if (server is not null && json["arguments"]?["game"]?.ToJsonString().Contains("quickPlayMultiplayer") != true)
+        {
+            var (host, port) = SplitServer(server);
+            args.AddRange(["--server", host, "--port", port]);
         }
 
         return args.Select(a => Placeholder.Replace(a, m => vars.TryGetValue(m.Groups[1].Value, out var v) ? v : m.Value)).ToList();
@@ -194,6 +211,14 @@ public static class LaunchArguments
                     break;
             }
         }
+    }
+
+    private static (string Host, string Port) SplitServer(string address)
+    {
+        var colon = address.LastIndexOf(':');
+        return colon > 0 && int.TryParse(address[(colon + 1)..], out _)
+            ? (address[..colon], address[(colon + 1)..])
+            : (address, "25565");
     }
 
     /// <summary>Разбивает строку аргументов JVM с учётом кавычек.</summary>

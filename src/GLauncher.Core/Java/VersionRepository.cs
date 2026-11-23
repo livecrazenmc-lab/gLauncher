@@ -17,7 +17,7 @@ public static class VersionRepository
         if (_manifest is not null && !refresh) return _manifest;
         try
         {
-            var text = await Http.Client.GetStringAsync(ManifestUrl, ct);
+            var text = await Http.GetStringAsync(ManifestUrl, ct);
             _manifest = JsonNode.Parse(text)!;
             Directory.CreateDirectory(Paths.Versions);
             await File.WriteAllTextAsync(ManifestCache, text, ct);

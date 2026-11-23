@@ -8,5 +8,6 @@
         <local:BoolToTextConverter x:Key="LicenseText" TrueText="есть" FalseText="нет" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <local:NullToVisibilityConverter x:Key="NotNullToVisibility" />
+        <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility" />
     </Application.Resources>
 </Application>
