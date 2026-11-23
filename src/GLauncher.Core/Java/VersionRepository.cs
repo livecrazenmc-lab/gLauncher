@@ -29,9 +29,24 @@ public static class VersionRepository
         return _manifest;
     }
 
-    public static async Task<IReadOnlyList<MinecraftVersionInfo>> GetVersionsAsync(CancellationToken ct = default)
+    /// <summary>Список версий из кэша на диске — чтобы показать его сразу, не дожидаясь сети. Пусто, если кэша нет.</summary>
+    public static IReadOnlyList<MinecraftVersionInfo> GetCachedVersions()
     {
-        var manifest = await GetManifestAsync(ct);
+        try
+        {
+            return File.Exists(ManifestCache) ? ParseVersions(JsonNode.Parse(File.ReadAllText(ManifestCache))!) : [];
+        }
+        catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException)
+        {
+            return [];
+        }
+    }
+
+    public static async Task<IReadOnlyList<MinecraftVersionInfo>> GetVersionsAsync(CancellationToken ct = default) =>
+        ParseVersions(await GetManifestAsync(ct));
+
+    private static IReadOnlyList<MinecraftVersionInfo> ParseVersions(JsonNode manifest)
+    {
         return (manifest["versions"] as JsonArray ?? [])
             .Where(v => v is not null)
             .Select(v => new MinecraftVersionInfo(

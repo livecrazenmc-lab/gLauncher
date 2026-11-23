@@ -4,10 +4,16 @@
              xmlns:local="clr-namespace:GLauncher"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <!-- Сюда можно подключить свои стили (ResourceDictionary) -->
-        <local:BoolToTextConverter x:Key="LicenseText" TrueText="есть" FalseText="нет" />
-        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
-        <local:NullToVisibilityConverter x:Key="NotNullToVisibility" />
-        <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Тема «Блоки»: палитра и стили всех контролов -->
+                <ResourceDictionary Source="Themes/Theme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <local:BoolToTextConverter x:Key="LicenseText" TrueText="есть" FalseText="нет" />
+            <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+            <local:NullToVisibilityConverter x:Key="NotNullToVisibility" />
+            <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility" />
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

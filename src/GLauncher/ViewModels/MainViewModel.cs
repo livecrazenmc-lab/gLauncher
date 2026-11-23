@@ -31,8 +31,7 @@ public partial class MainViewModel : ObservableObject
     public async Task InitializeAsync()
     {
         var updates = Settings.CheckForUpdates ? Updates.CheckAsync(silent: true) : Task.CompletedTask;
-        await Task.WhenAll(Accounts.InitializeAsync(), Java.LoadVersionsAsync(), updates);
-        await Content.ReloadAsync();
+        await Task.WhenAll(Accounts.InitializeAsync(), Java.LoadVersionsAsync(), Content.ReloadAsync(), updates);
     }
 }
 
