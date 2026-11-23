@@ -1,0 +1,24 @@
+namespace GLauncher.Core;
+
+public sealed class LauncherSettings
+{
+    /// <summary>
+    /// Client ID приложения Azure (Microsoft Entra), через которое идёт вход.
+    /// Приложение должно быть одобрено Mojang для доступа к Minecraft API.
+    /// </summary>
+    public string MicrosoftClientId { get; set; } = "";
+
+    /// <summary>Случайный идентификатор установки лаунчера (передаётся игре как clientId).</summary>
+    public string ClientToken { get; set; } = Guid.NewGuid().ToString("N");
+
+    public bool ShowSnapshots { get; set; }
+
+    public static LauncherSettings Load()
+    {
+        var settings = JsonFile.Load<LauncherSettings>(Paths.SettingsFile) ?? new LauncherSettings();
+        if (!File.Exists(Paths.SettingsFile)) settings.Save();
+        return settings;
+    }
+
+    public void Save() => JsonFile.Save(Paths.SettingsFile, this);
+}

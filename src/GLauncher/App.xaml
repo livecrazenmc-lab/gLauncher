@@ -1,0 +1,12 @@
+<Application x:Class="GLauncher.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:GLauncher"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <!-- Сюда можно подключить свои стили (ResourceDictionary) -->
+        <local:BoolToTextConverter x:Key="LicenseText" TrueText="есть" FalseText="нет" />
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <local:NullToVisibilityConverter x:Key="NotNullToVisibility" />
+    </Application.Resources>
+</Application>
