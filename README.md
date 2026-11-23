@@ -3,10 +3,26 @@
 Лаунчер Minecraft Java Edition и Bedrock Edition для Windows (C# / WPF, .NET 8).
 Играть можно только с лицензионным аккаунтом Microsoft.
 
+## Установка
+
+Скачайте `gLauncher-Setup.exe` со страницы [Releases](https://github.com/livecrazenmc-lab/gLauncher/releases/latest) и запустите.
+Права администратора не нужны: лаунчер ставится в `%LocalAppData%\Programs\gLauncher`, создаёт ярлык в «Пуске»
+(и по желанию на рабочем столе) и появляется в «Установленных приложениях». Дальше он обновляется сам.
+При удалении аккаунты, профили и миры в `%APPDATA%\.glauncher` сохраняются.
+
+Там же лежит портативный `gLauncher.exe` — его можно запускать без установки.
+
 ## Сборка и запуск
 
 ```powershell
 dotnet run --project src\GLauncher
+```
+
+Установщик собирается [Inno Setup 6](https://jrsoftware.org/isinfo.php) из [installer/gLauncher.iss](installer/gLauncher.iss)
+после `dotnet publish` в папку `publish` (так же, как в release.yml):
+
+```powershell
+ISCC.exe /DAppVersion=0.3.0 installer\gLauncher.iss
 ```
 
 ## Перед первым входом: Client ID
@@ -43,11 +59,24 @@ dotnet run --project src\GLauncher
    git push origin v0.3.0
    ```
 3. GitHub Actions ([release.yml](.github/workflows/release.yml)) соберёт `gLauncher.exe` (один файл, .NET внутри)
-   и опубликует релиз. Установленные лаунчеры увидят его при следующем запуске.
+   и установщик `gLauncher-Setup.exe` и опубликует релиз. Установленные лаунчеры увидят его при следующем запуске:
+   они скачивают ассет `gLauncher.exe`, сверяют SHA-256 и подменяют exe на месте.
 
 Лаунчер проверяет `https://api.github.com/repos/livecrazenmc-lab/gLauncher/releases/latest` **без авторизации**,
 поэтому репозиторий должен быть **публичным** — у приватного релизы видны только вам.
 Обновление работает только в опубликованном `gLauncher.exe`; при запуске через `dotnet run` оно отключено.
+
+## Оформление
+
+Тема «Блоки» лежит в [src/GLauncher/Themes](src/GLauncher/Themes):
+
+* [Theme.xaml](src/GLauncher/Themes/Theme.xaml) — палитра (раздел «Палитра» в начале файла) и стили всех контролов:
+  кнопки-блоки с фаской, поля, списки, вкладки, прокрутка, прогресс в виде шкалы опыта.
+  Именованные стили: `PlayButton`, `DangerButton`, `SmallButton`, `ConsoleList`, `FieldLabel`, `SectionTitle`, `HintText`, `WarningText`.
+* [PixelTextures.cs](src/GLauncher/Themes/PixelTextures.cs) — пиксельные текстуры 16×16 (камень, глубинный сланец, земля, дёрн, доски),
+  нарисованные кодом. В XAML: `Background="{themes:PixelTexture Kind=Stone, TileSize=64}"`.
+
+Ассеты Mojang (шрифт, текстуры, звуки) не используются — всё нарисовано заново.
 
 ## Структура
 

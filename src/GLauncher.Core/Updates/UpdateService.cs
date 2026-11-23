@@ -37,8 +37,24 @@ public static class UpdateService
     private static string NewPath => ExePath + ".new";
     private static string OldPath => ExePath + ".old";
 
-    /// <summary>Возвращает свежий релиз, если он новее текущей версии, иначе null.</summary>
+    /// <summary>Возвращает свежий релиз, если он новее текущей версии, иначе null. Сетевые сбои повторяются.</summary>
     public static async Task<UpdateInfo?> CheckAsync(CancellationToken ct)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            try
+            {
+                return await CheckOnceAsync(ct);
+            }
+            catch (Exception ex) when (attempt < 4 && !ct.IsCancellationRequested &&
+                                       ex is HttpRequestException { StatusCode: null } or TaskCanceledException)
+            {
+                await Task.Delay(1500 * attempt, ct);
+            }
+        }
+    }
+
+    private static async Task<UpdateInfo?> CheckOnceAsync(CancellationToken ct)
     {
         using var req = new HttpRequestMessage(HttpMethod.Get,
             $"https://api.github.com/repos/{Owner}/{Repository}/releases/latest");
@@ -84,6 +100,25 @@ public static class UpdateService
             throw new LauncherException("Обновление доступно только в опубликованной сборке (один файл gLauncher.exe).");
 
         TryDelete(NewPath);
+        for (var attempt = 1; ; attempt++)
+        {
+            try
+            {
+                await DownloadAsync(update, progress, ct);
+                break;
+            }
+            catch (Exception ex) when (attempt < 3 && !ct.IsCancellationRequested &&
+                                       ex is HttpRequestException or IOException or TaskCanceledException)
+            {
+                TryDelete(NewPath);
+                await Task.Delay(1500 * attempt, ct);
+            }
+        }
+        await VerifyAndSwapAsync(update, ct);
+    }
+
+    private static async Task DownloadAsync(UpdateInfo update, IProgress<ProgressInfo>? progress, CancellationToken ct)
+    {
         using (var resp = await Http.Client.GetAsync(update.AssetUrl, HttpCompletionOption.ResponseHeadersRead, ct))
         {
             resp.EnsureSuccessStatusCode();
@@ -101,12 +136,14 @@ public static class UpdateService
             }
         }
 
+        // Оборванная загрузка — IOException, чтобы ApplyAsync повторил попытку.
         var size = new FileInfo(NewPath).Length;
         if (update.Size > 0 && size != update.Size)
-        {
-            TryDelete(NewPath);
-            throw new LauncherException("Обновление скачалось не полностью. Попробуйте ещё раз.");
-        }
+            throw new IOException("Обновление скачалось не полностью. Попробуйте ещё раз.");
+    }
+
+    private static async Task VerifyAndSwapAsync(UpdateInfo update, CancellationToken ct)
+    {
         if (update.Sha256 is not null)
         {
             await using var fs = File.OpenRead(NewPath);
@@ -129,6 +166,29 @@ public static class UpdateService
         {
             File.Move(OldPath, ExePath); // откат
             throw;
+        }
+
+        UpdateInstalledVersion(update.Version);
+    }
+
+    /// <summary>ID приложения из installer\gLauncher.iss (запись в «Установленных приложениях» Windows).</summary>
+    private const string InstallerUninstallKey =
+        @"Software\Microsoft\Windows\CurrentVersion\Uninstall\{6B0E4C2A-9D1F-4E7B-A3C5-2F8D61B7E940}_is1";
+
+    /// <summary>Если лаунчер поставлен установщиком — показать новую версию в «Установленных приложениях».</summary>
+    private static void UpdateInstalledVersion(Version version)
+    {
+        try
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(InstallerUninstallKey, writable: true);
+            if (key is null) return; // запущен не из установки (портативный exe)
+            var text = $"{version.Major}.{version.Minor}.{Math.Max(version.Build, 0)}";
+            key.SetValue("DisplayVersion", text);
+            key.SetValue("DisplayName", "gLauncher");
+        }
+        catch
+        {
+            // не критично
         }
     }
 

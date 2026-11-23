@@ -9,7 +9,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>GLauncher</RootNamespace>
     <AssemblyName>gLauncher</AssemblyName>
+    <ApplicationIcon>Assets\gLauncher.ico</ApplicationIcon>
+    <Product>gLauncher</Product>
+    <Description>Лаунчер Minecraft Java и Bedrock</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\gLauncher.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />

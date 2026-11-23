@@ -1,6 +1,7 @@
 # Выпуск новой версии: поднять <Version> в Directory.Build.props, закоммитить,
-# затем  git tag v0.2.0 && git push origin v0.2.0
-# Workflow соберёт gLauncher.exe и опубликует релиз — лаунчеры пользователей увидят обновление.
+# затем  git tag v0.3.0 && git push origin v0.3.0
+# Workflow соберёт gLauncher.exe и установщик gLauncher-Setup.exe и опубликует релиз.
+# Лаунчеры пользователей увидят обновление (они скачивают ассет gLauncher.exe).
 name: Release
 
 on:
@@ -22,16 +23,34 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Publish
+      - name: Version from tag
         shell: pwsh
         run: |
           $version = $env:TAG.TrimStart('v')
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Publish gLauncher.exe
+        shell: pwsh
+        run: |
           dotnet publish src/GLauncher/GLauncher.csproj -c Release -r win-x64 --self-contained true `
             -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true `
-            -p:EnableCompressionInSingleFile=true -p:Version=$version -o publish
+            -p:EnableCompressionInSingleFile=true -p:Version=$env:VERSION -o publish
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $iscc = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup -y --no-progress
+            if ($LASTEXITCODE -ne 0) { throw 'Не удалось установить Inno Setup' }
+          }
+          & $iscc "/DAppVersion=$env:VERSION" installer/gLauncher.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC завершился с кодом $LASTEXITCODE" }
 
       - name: Create GitHub release
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create $env:TAG publish/gLauncher.exe --title $env:TAG --generate-notes
+        run: |
+          gh release create $env:TAG publish/gLauncher.exe installer/Output/gLauncher-Setup.exe `
+            --title $env:TAG --generate-notes
