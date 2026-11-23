@@ -21,7 +21,7 @@
             <!-- Поиск на Modrinth -->
             <DockPanel Grid.Column="0">
                 <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
-                    <Button DockPanel.Dock="Right" Content="Найти" Command="{Binding SearchCommand}" IsDefault="True" Background="{StaticResource Brush.Accent}" Margin="6,0,0,0" />
+                    <Button DockPanel.Dock="Right" Content="Найти" Command="{Binding SearchCommand}" IsDefault="True" Background="{DynamicResource Brush.Accent}" Margin="6,0,0,0" />
                     <TextBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="Поиск на Modrinth. Пусто — самые популярные." />
                 </DockPanel>
@@ -33,7 +33,7 @@
                         <DataTemplate>
                             <DockPanel Margin="4">
                                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="✔ установлено" Foreground="{StaticResource Brush.AccentLight}" FontWeight="SemiBold" VerticalAlignment="Center"
+                                    <TextBlock Text="✔ установлено" Foreground="{DynamicResource Brush.AccentLight}" FontWeight="SemiBold" VerticalAlignment="Center"
                                                Visibility="{Binding IsInstalled, Converter={StaticResource BoolToVisibility}}" />
                                     <Button Content="Установить" Style="{StaticResource SmallButton}" Margin="6,0,0,0"
                                             Command="{Binding DataContext.InstallCommand, ElementName=Root}" CommandParameter="{Binding}" />
@@ -43,9 +43,9 @@
                                 <StackPanel>
                                     <TextBlock>
                                         <Run Text="{Binding Title, Mode=OneWay}" FontWeight="Bold" />
-                                        <Run Text="  автор:" Foreground="{StaticResource Brush.TextDim}" />
+                                        <Run Text="  автор:" Foreground="{DynamicResource Brush.TextDim}" />
                                         <Run Text="{Binding Author, Mode=OneWay}" />
-                                        <Run Text="  загрузок:" Foreground="{StaticResource Brush.TextDim}" />
+                                        <Run Text="  загрузок:" Foreground="{DynamicResource Brush.TextDim}" />
                                         <Run Text="{Binding Downloads, Mode=OneWay}" />
                                     </TextBlock>
                                     <TextBlock Text="{Binding Description}" Style="{StaticResource HintText}" Margin="0,2,0,0" />
@@ -71,13 +71,13 @@
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <DockPanel Margin="2">
-                                <Button DockPanel.Dock="Right" Content="Удалить" Style="{StaticResource SmallButton}" Background="{StaticResource Brush.Danger}" Margin="6,0,0,0"
+                                <Button DockPanel.Dock="Right" Content="Удалить" Style="{StaticResource SmallButton}" Background="{DynamicResource Brush.Danger}" Margin="6,0,0,0"
                                         Command="{Binding DataContext.DeleteCommand, ElementName=Root}" CommandParameter="{Binding}" />
                                 <CheckBox DockPanel.Dock="Left" IsChecked="{Binding IsEnabled}" VerticalAlignment="Center"
                                           ToolTip="Включён" Margin="0,0,6,0" />
                                 <StackPanel>
                                     <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Text="{Binding FileName}" FontSize="10" Foreground="{StaticResource Brush.TextDim}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding FileName}" FontSize="10" Foreground="{DynamicResource Brush.TextDim}" TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
                             </DockPanel>
                         </DataTemplate>
@@ -87,4 +87,5 @@
         </Grid>
     </DockPanel>
 </UserControl>
+
 

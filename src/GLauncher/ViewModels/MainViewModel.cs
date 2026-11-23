@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GLauncher.Core;
 using GLauncher.Core.Updates;
+using GLauncher.Themes;
 
 namespace GLauncher.ViewModels;
 
@@ -31,7 +32,8 @@ public partial class MainViewModel : ObservableObject
     public async Task InitializeAsync()
     {
         var updates = Settings.CheckForUpdates ? Updates.CheckAsync(silent: true) : Task.CompletedTask;
-        await Task.WhenAll(Accounts.InitializeAsync(), Java.LoadVersionsAsync(), Content.ReloadAsync(), updates);
+        await Task.WhenAll(Accounts.InitializeAsync(), Java.LoadVersionsAsync(), Content.ReloadAsync(), updates,
+            SettingsPage.Credits.RefreshAsync());
     }
 }
 
@@ -141,6 +143,11 @@ public sealed record AfterLaunchOption(AfterLaunchAction Action, string Title)
     public override string ToString() => Title;
 }
 
+public sealed record ThemeOption(ThemeId Id, string Title)
+{
+    public override string ToString() => Title;
+}
+
 public partial class SettingsViewModel : ObservableObject
 {
     private readonly LauncherSettings _settings;
@@ -151,9 +158,35 @@ public partial class SettingsViewModel : ObservableObject
         Updates = updates;
         clientId = settings.MicrosoftClientId;
         selectedAfterLaunch = AfterLaunchOptions.First(o => o.Action == settings.AfterLaunch);
+
+        ThemeOptions = [new(ThemeId.Auto, "Авто — по времени года и праздникам"),
+                        .. ThemeManager.Themes.Select(t => new ThemeOption(t.Id, t.Title))];
+        var themeId = Enum.TryParse<ThemeId>(settings.Theme, out var id) ? id : ThemeId.Auto;
+        selectedTheme = ThemeOptions.First(o => o.Id == themeId);
+        currentThemeText = ThemeText(themeId);
     }
 
     public UpdatesViewModel Updates { get; }
+
+    public CreditsViewModel Credits { get; } = new();
+
+    // --- Оформление ---
+
+    public IReadOnlyList<ThemeOption> ThemeOptions { get; }
+
+    [ObservableProperty] private ThemeOption selectedTheme;
+    [ObservableProperty] private string currentThemeText;
+
+    partial void OnSelectedThemeChanged(ThemeOption value)
+    {
+        _settings.Theme = value.Id.ToString();
+        _settings.Save();
+        ThemeManager.Apply(ThemeManager.Resolve(value.Id));
+        CurrentThemeText = ThemeText(value.Id);
+    }
+
+    private static string ThemeText(ThemeId id) =>
+        id == ThemeId.Auto ? $"Сейчас: {ThemeManager.Resolve(ThemeId.Auto).Title}" : "";
 
     public IReadOnlyList<AfterLaunchOption> AfterLaunchOptions { get; } =
     [
