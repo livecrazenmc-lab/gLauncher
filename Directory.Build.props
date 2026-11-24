@@ -1,6 +1,6 @@
 <Project>
   <!-- Версия лаунчера. Перед выпуском релиза поднимите её и создайте тег vX.Y.Z (см. README). -->
   <PropertyGroup>
-    <Version>0.2.0</Version>
+    <Version>0.3.0</Version>
   </PropertyGroup>
 </Project>
