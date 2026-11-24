@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -16,6 +16,7 @@ public partial class MainViewModel : ObservableObject
         Accounts = new AccountsViewModel(Settings);
         Java = new JavaViewModel(Accounts, Settings);
         Content = new ContentViewModel(Java);
+        Skins = new SkinsViewModel(Accounts);
         Bedrock = new BedrockViewModel(Accounts);
         Updates = new UpdatesViewModel(Settings);
         SettingsPage = new SettingsViewModel(Settings, Updates);
@@ -25,6 +26,7 @@ public partial class MainViewModel : ObservableObject
     public AccountsViewModel Accounts { get; }
     public JavaViewModel Java { get; }
     public ContentViewModel Content { get; }
+    public SkinsViewModel Skins { get; }
     public BedrockViewModel Bedrock { get; }
     public UpdatesViewModel Updates { get; }
     public SettingsViewModel SettingsPage { get; }
@@ -33,7 +35,7 @@ public partial class MainViewModel : ObservableObject
     {
         var updates = Settings.CheckForUpdates ? Updates.CheckAsync(silent: true) : Task.CompletedTask;
         await Task.WhenAll(Accounts.InitializeAsync(), Java.LoadVersionsAsync(), Content.ReloadAsync(), updates,
-            SettingsPage.Credits.RefreshAsync());
+            SettingsPage.Credits.RefreshAsync(), Skins.InitializeAsync());
     }
 }
 
@@ -233,3 +235,4 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private void OpenApprovalForm() => Shell.Open("https://aka.ms/mce-reviewappid");
 }
+
