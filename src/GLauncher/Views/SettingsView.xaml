@@ -4,12 +4,17 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="10" MaxWidth="900" HorizontalAlignment="Left">
             <GroupBox Header="Оформление" Margin="0,0,0,12">
-                <DockPanel>
-                    <TextBlock Text="Тема:" VerticalAlignment="Center" Margin="0,0,8,0" />
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding CurrentThemeText}" Style="{StaticResource HintText}"
-                               VerticalAlignment="Center" Margin="10,0,0,0" />
-                    <ComboBox ItemsSource="{Binding ThemeOptions}" SelectedItem="{Binding SelectedTheme}" />
-                </DockPanel>
+                <StackPanel>
+                    <DockPanel>
+                        <TextBlock Text="Тема:" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <TextBlock DockPanel.Dock="Right" Text="{Binding CurrentThemeText}" Style="{StaticResource HintText}"
+                                   VerticalAlignment="Center" Margin="10,0,0,0" />
+                        <ComboBox ItemsSource="{Binding ThemeOptions}" SelectedItem="{Binding SelectedTheme}" />
+                    </DockPanel>
+                    <TextBlock Text="★ Вам открыты эксклюзивные темы — спасибо, что вы в благодарностях!" Margin="0,8,0,0"
+                               Foreground="{DynamicResource Brush.TextGold}" FontWeight="SemiBold"
+                               Visibility="{Binding HasExclusiveThemes, Converter={StaticResource BoolToVisibility}}" />
+                </StackPanel>
             </GroupBox>
 
             <GroupBox Header="Запуск игры" Margin="0,0,0,12">
@@ -59,7 +64,9 @@
             </GroupBox>
 
             <!-- Игрокам здесь ничего настраивать не нужно: Client ID вшит в лаунчер -->
-            <GroupBox Header="Для разработчиков" Margin="0,0,0,12">
+            <!-- Видят только люди из благодарностей (по UUID аккаунта); список — credits.json на GitHub -->
+            <GroupBox Header="Для разработчиков" Margin="0,0,0,12"
+                      Visibility="{Binding ShowDeveloper, Converter={StaticResource BoolToVisibility}}">
                 <StackPanel>
                     <TextBlock Text="{Binding BuiltInClientIdStatus}" TextWrapping="Wrap" Margin="0,0,0,8" />
                     <TextBlock Style="{StaticResource HintText}" Margin="0,0,0,6"

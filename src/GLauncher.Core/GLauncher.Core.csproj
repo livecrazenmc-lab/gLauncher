@@ -12,6 +12,11 @@
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
   </ItemGroup>
 
+  <!-- Копия благодарностей на случай первого запуска без интернета (основной источник — credits.json на GitHub) -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\credits.json" LogicalName="credits.json" />
+  </ItemGroup>
+
   <!-- Встроенный Client ID (из Directory.Build.props) — читается через AuthConfig -->
   <ItemGroup>
     <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">

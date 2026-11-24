@@ -25,24 +25,28 @@ public partial class CreditEntry(string role, string uuid) : ObservableObject
 
 public partial class CreditsViewModel : ObservableObject
 {
-    public ObservableCollection<CreditEntry> People { get; } =
-    [
-        new("Создатель лаунчера", "744f7a25-22e6-40da-aac7-1669bb520f49"),
-        new("Тестировщик", "add22551-f487-47a5-9655-a10d55edba5f"),
-    ];
+    /// <summary>Люди из credits.json (список на GitHub, меняется без релиза).</summary>
+    public ObservableCollection<CreditEntry> People { get; } = [];
 
-    public CreditsViewModel()
+    public CreditsViewModel() => Rebuild();
+
+    /// <summary>Пересобрать список из CreditsService; ники и лица — сразу из кэша (работает и офлайн).</summary>
+    private void Rebuild()
     {
-        // Сразу показываем последнее известное (работает и офлайн).
-        foreach (var person in People)
+        People.Clear();
+        foreach (var p in CreditsService.People)
         {
-            if (PlayerProfileService.LoadCached(person.Uuid) is { } cached) person.Apply(cached);
+            var entry = new CreditEntry(p.Role, p.Uuid);
+            if (PlayerProfileService.LoadCached(p.Uuid) is { } cached) entry.Apply(cached);
+            People.Add(entry);
         }
     }
 
-    /// <summary>Заново узнаёт ники и скины: игроки могли их сменить.</summary>
+    /// <summary>Скачивает свежий credits.json, затем заново узнаёт ники и скины: игроки могли их сменить.</summary>
     public async Task RefreshAsync()
     {
+        await CreditsService.RefreshAsync(CancellationToken.None);
+        Rebuild();
         await Task.WhenAll(People.Select(async person =>
         {
             try

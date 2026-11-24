@@ -24,6 +24,25 @@ public partial class MainViewModel : ObservableObject
         Legends = new GameViewModel(SpinoffGames.Legends, Accounts);
         Updates = new UpdatesViewModel(Settings);
         SettingsPage = new SettingsViewModel(Settings, Updates);
+
+        // Плюшки зависят от активного аккаунта и списка благодарностей (он может обновиться с GitHub).
+        Accounts.ActiveAccountChanged += (_, _) => UpdatePerks();
+        GLauncher.Core.Players.CreditsService.Changed += () =>
+            System.Windows.Application.Current?.Dispatcher.BeginInvoke(UpdatePerks);
+        UpdatePerks();
+    }
+
+    /// <summary>Человек из благодарностей, если активный аккаунт есть в списке (сверка по UUID).</summary>
+    [ObservableProperty] private GLauncher.Core.Players.CreditPerson? creditedPerson;
+
+    public bool IsCredited => CreditedPerson is not null;
+
+    partial void OnCreditedPersonChanged(GLauncher.Core.Players.CreditPerson? value) => OnPropertyChanged(nameof(IsCredited));
+
+    private void UpdatePerks()
+    {
+        CreditedPerson = GLauncher.Core.Players.CreditsService.Find(Accounts.Selected?.Uuid);
+        SettingsPage.ApplyPerks(CreditedPerson);
     }
 
     public LauncherSettings Settings { get; }
@@ -180,19 +199,56 @@ public partial class SettingsViewModel : ObservableObject
         selectedAfterLaunch = AfterLaunchOptions.First(o => o.Action == settings.AfterLaunch);
 
         ThemeOptions = [new(ThemeId.Auto, "Авто — по времени года и праздникам"),
-                        .. ThemeManager.Themes.Select(t => new ThemeOption(t.Id, t.Title))];
+                        .. ThemeManager.Themes.Where(t => !ThemeManager.IsExclusive(t.Id)).Select(t => new ThemeOption(t.Id, t.Title))];
         var themeId = Enum.TryParse<ThemeId>(settings.Theme, out var id) ? id : ThemeId.Auto;
-        selectedTheme = ThemeOptions.First(o => o.Id == themeId);
+        selectedTheme = ThemeOptions.FirstOrDefault(o => o.Id == themeId) ?? ThemeOptions[0];
         currentThemeText = ThemeText(themeId);
+#if DEBUG
+        showDeveloper = true; // в отладочной сборке разработчик видит всё
+#endif
     }
 
     public UpdatesViewModel Updates { get; }
 
     public CreditsViewModel Credits { get; } = new();
 
+    // --- Плюшки для людей из благодарностей ---
+
+    /// <summary>Блок «Для разработчиков» — только для людей из благодарностей (по UUID аккаунта).</summary>
+    [ObservableProperty] private bool showDeveloper;
+
+    [ObservableProperty] private bool hasExclusiveThemes;
+
+    /// <summary>Вызывается при смене аккаунта и при обновлении credits.json.</summary>
+    public void ApplyPerks(GLauncher.Core.Players.CreditPerson? person)
+    {
+        var credited = person is not null;
+#if DEBUG
+        ShowDeveloper = true;
+#else
+        ShowDeveloper = credited;
+#endif
+        HasExclusiveThemes = credited;
+
+        var exclusive = ThemeManager.Themes.Where(t => ThemeManager.IsExclusive(t.Id)).ToList();
+        if (credited)
+        {
+            foreach (var t in exclusive.Where(t => ThemeOptions.All(o => o.Id != t.Id)))
+                ThemeOptions.Add(new ThemeOption(t.Id, t.Title));
+            // Тема, выбранная раньше, но скрытая до проверки аккаунта
+            if (Enum.TryParse<ThemeId>(_settings.Theme, out var saved) && ThemeManager.IsExclusive(saved) && SelectedTheme.Id != saved)
+                SelectedTheme = ThemeOptions.First(o => o.Id == saved);
+        }
+        else
+        {
+            if (ThemeManager.IsExclusive(SelectedTheme.Id)) SelectedTheme = ThemeOptions[0];
+            foreach (var o in ThemeOptions.Where(o => ThemeManager.IsExclusive(o.Id)).ToList()) ThemeOptions.Remove(o);
+        }
+    }
+
     // --- Оформление ---
 
-    public IReadOnlyList<ThemeOption> ThemeOptions { get; }
+    public System.Collections.ObjectModel.ObservableCollection<ThemeOption> ThemeOptions { get; }
 
     [ObservableProperty] private ThemeOption selectedTheme;
     [ObservableProperty] private string currentThemeText;

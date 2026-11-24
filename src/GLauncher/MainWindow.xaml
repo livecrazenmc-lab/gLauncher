@@ -9,6 +9,7 @@
         Foreground="{DynamicResource Brush.Text}"
         FontFamily="Segoe UI" FontSize="13"
         UseLayoutRounding="True" SnapsToDevicePixels="True">
+    <Grid>
     <DockPanel>
         <!-- Шапка: полоса дёрна с травой и название -->
         <Grid DockPanel.Dock="Top" Height="72">
@@ -16,6 +17,9 @@
             <Border Background="#59000000" Margin="0,18,0,0" />
             <Border BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="0,0,0,3" />
             <DockPanel Margin="18,18,18,6">
+                <TextBlock DockPanel.Dock="Right" Text="{Binding CreditedPerson.Greeting}" VerticalAlignment="Center" Margin="24,0,0,0"
+                           FontWeight="Bold" Foreground="{DynamicResource Brush.TextGold}" Effect="{StaticResource Effect.TextShadow}"
+                           Visibility="{Binding IsCredited, Converter={StaticResource BoolToVisibility}}" />
                 <StackPanel DockPanel.Dock="Right" VerticalAlignment="Center" HorizontalAlignment="Right">
                     <TextBlock HorizontalAlignment="Right" Foreground="{DynamicResource Brush.TextDim}" FontSize="11"
                                Effect="{StaticResource Effect.TextShadow}">
@@ -23,7 +27,7 @@
                         <Run Text="{Binding Updates.CurrentVersion, Mode=OneWay}" />
                     </TextBlock>
                 </StackPanel>
-                <TextBlock VerticalAlignment="Center" FontSize="30" FontWeight="Black"
+                <TextBlock x:Name="Logo" Background="Transparent" VerticalAlignment="Center" FontSize="30" FontWeight="Black"
                            Effect="{StaticResource Effect.TextShadow}">
                     <Run Text="g" Foreground="{DynamicResource Brush.AccentLight}" /><Run Text="Launcher" />
                 </TextBlock>
@@ -64,7 +68,21 @@
                         </Border>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="{Binding Accounts.Selected.DisplayName, FallbackValue='Нет аккаунта', TargetNullValue='Нет аккаунта'}"
-                                       FontWeight="Bold" TextTrimming="CharacterEllipsis" />
+                                       FontWeight="Bold" TextTrimming="CharacterEllipsis">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsCredited}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource Brush.TextGold}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.TextGold}"
+                                       Visibility="{Binding IsCredited, Converter={StaticResource BoolToVisibility}}">
+                                <Run Text="★" /> <Run Text="{Binding CreditedPerson.Role, Mode=OneWay}" />
+                            </TextBlock>
                             <TextBlock Text="{Binding Accounts.ActiveSubtitle}" FontSize="11" FontWeight="Normal"
                                        Foreground="{DynamicResource Brush.TextDim}" />
                         </StackPanel>
@@ -164,7 +182,13 @@
                 <views:SettingsView DataContext="{Binding SettingsPage}" />
             </TabItem>
         </TabControl>    </DockPanel>
+
+    <!-- Слой для пасхалки (падающие блоки) — поверх всего, клики проходят насквозь -->
+    <Canvas x:Name="FxLayer" IsHitTestVisible="False" ClipToBounds="True" />
+    </Grid>
 </Window>
+
+
 
 
 
