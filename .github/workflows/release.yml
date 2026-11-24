@@ -1,5 +1,7 @@
-# Выпуск новой версии: поднять <Version> в Directory.Build.props, закоммитить,
-# затем  git tag v0.3.0 && git push origin v0.3.0
+# Версии: 0.Y.X — первое число всегда 0, Y — новые функции (X сбрасывается в 0), X — исправления.
+# После 9 идёт 10 (0.9.0 → 0.10.0). Подробнее — README, раздел «Версии».
+# Выпуск: поднять <Version> в Directory.Build.props, закоммитить,
+# затем  git tag v0.4.0 && git push origin v0.4.0
 # Workflow соберёт gLauncher.exe и установщик gLauncher-Setup.exe и опубликует релиз.
 # Лаунчеры пользователей увидят обновление (они скачивают ассет gLauncher.exe).
 name: Release
@@ -26,7 +28,17 @@ jobs:
       - name: Version from tag
         shell: pwsh
         run: |
+          # Схема версий 0.Y.X: первое число всегда 0, числа без ведущих нулей (0.10.0, а не 0.010.0)
+          if ($env:TAG -notmatch '^v0\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$') {
+            throw "Тег '$($env:TAG)' не по схеме версий: нужен v0.Y.X, например v0.4.0 или v0.3.1"
+          }
           $version = $env:TAG.TrimStart('v')
+          # Версия в Directory.Build.props должна совпадать с тегом
+          $props = [xml](Get-Content Directory.Build.props)
+          $declared = $props.Project.PropertyGroup.Version
+          if ($declared -ne $version) {
+            throw "В Directory.Build.props указана версия $declared, а тег — $version. Поднимите <Version> до $version."
+          }
           "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Publish gLauncher.exe
