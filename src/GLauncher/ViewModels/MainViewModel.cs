@@ -198,9 +198,14 @@ public partial class SettingsViewModel : ObservableObject
         clientId = settings.MicrosoftClientId;
         selectedAfterLaunch = AfterLaunchOptions.First(o => o.Action == settings.AfterLaunch);
 
-        ThemeOptions = [new(ThemeId.Auto, "Авто — по времени года и праздникам"),
-                        .. ThemeManager.Themes.Where(t => !ThemeManager.IsExclusive(t.Id)).Select(t => new ThemeOption(t.Id, t.Title))];
-        var themeId = Enum.TryParse<ThemeId>(settings.Theme, out var id) ? id : ThemeId.Auto;
+        // «Сезонная» сама выбирает оформление по дате (праздник важнее времени года); отдельных сезонов в списке нет.
+        ThemeOptions = [new(ThemeId.Auto, "Сезонная"), new(ThemeId.Blocks, ThemeManager.Get(ThemeId.Blocks).Title)];
+        var themeId = ThemeManager.FromSetting(settings.Theme);
+        if (themeId.ToString() != settings.Theme)
+        {
+            settings.Theme = themeId.ToString(); // старое значение (сезон/праздник) → «Сезонная»
+            settings.Save();
+        }
         selectedTheme = ThemeOptions.FirstOrDefault(o => o.Id == themeId) ?? ThemeOptions[0];
         currentThemeText = ThemeText(themeId);
 #if DEBUG

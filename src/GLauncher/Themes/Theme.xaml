@@ -1,6 +1,6 @@
 ﻿<!--
     Стили gLauncher: кнопки-блоки с фаской, поля, списки, вкладки и т. д.
-    Цвета и текстуры каждой темы (Блоки, Весна, Лето, Осень, Зима, Новый год, Пасха, Хэллоуин) — в ThemeManager.cs.
+    Цвета и текстуры тем — в ThemeManager.cs: «Блоки», «Сезонная» (сама выбирает оформление по дате) и эксклюзивные.
 -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -722,5 +722,6 @@
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
 </ResourceDictionary>
+
 
 
