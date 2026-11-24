@@ -1,4 +1,4 @@
-; Установщик gLauncher (Inno Setup 6).
+﻿; Установщик gLauncher (Inno Setup 6).
 ;
 ; Сборка (из корня репозитория, после dotnet publish в папку publish):
 ;   ISCC.exe /DAppVersion=0.3.0 installer\gLauncher.iss
@@ -41,7 +41,7 @@ UsePreviousAppDir=yes
 
 OutputDir=Output
 OutputBaseFilename=gLauncher-Setup
-SetupIconFile=..\src\GLauncher\Assets\gLauncher.ico
+SetupIconFile=gLauncher-Setup.ico
 UninstallDisplayIcon={app}\{#AppExe}
 UninstallDisplayName={#AppName}
 
@@ -78,3 +78,4 @@ Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags
 Type: files; Name: "{app}\{#AppExe}.old"
 Type: files; Name: "{app}\{#AppExe}.new"
 Type: dirifempty; Name: "{app}"
+
