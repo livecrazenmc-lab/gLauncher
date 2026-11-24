@@ -9,6 +9,6 @@
       Это не секрет (публичный клиент без пароля), его можно хранить в репозитории.
       Как получить — README, раздел «Вход через Microsoft: Client ID».
     -->
-    <GLauncherClientId></GLauncherClientId>
+    <GLauncherClientId>ff868374-2b04-4039-9e81-6ebe1c66969c</GLauncherClientId>
   </PropertyGroup>
 </Project>
