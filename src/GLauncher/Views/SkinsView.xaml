@@ -1,0 +1,122 @@
+<UserControl x:Class="GLauncher.Views.SkinsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:skins="clr-namespace:GLauncher.Skins"
+             x:Name="Root">
+    <Grid Margin="6">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="250" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Библиотека -->
+        <DockPanel Grid.Column="0" Margin="0,0,12,0">
+            <TextBlock DockPanel.Dock="Top" Text="Библиотека скинов" Style="{StaticResource SectionTitle}" Margin="2,0,0,6" />
+            <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+                <UniformGrid Columns="2">
+                    <Button Content="Из файла…" Command="{Binding AddFileCommand}" Margin="0,0,3,0" />
+                    <Button Content="Удалить" Command="{Binding RemoveCommand}" Style="{StaticResource DangerButton}" Margin="3,0,0,0" />
+                </UniformGrid>
+                <DockPanel Margin="0,6,0,0">
+                    <Button DockPanel.Dock="Right" Content="По нику" Command="{Binding ImportNicknameCommand}" Margin="6,0,0,0" />
+                    <TextBox Text="{Binding Nickname, UpdateSourceTrigger=PropertyChanged}" ToolTip="Ник игрока Minecraft — его скин скопируется в библиотеку" />
+                </DockPanel>
+                <Button Content="Открыть папку скинов" Command="{Binding OpenFolderCommand}" Style="{StaticResource SmallButton}"
+                        HorizontalAlignment="Left" Margin="0,6,0,0" />
+            </StackPanel>
+            <ListBox ItemsSource="{Binding Library}" SelectedItem="{Binding Selected}" HorizontalContentAlignment="Stretch"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel>
+                            <Image DockPanel.Dock="Left" Source="{Binding Thumbnail}" Width="28" Height="56" Margin="0,0,10,0"
+                                   RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="тонкие руки" FontSize="11" Foreground="{DynamicResource Brush.TextDim}"
+                                           Visibility="{Binding IsSlim, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+
+        <!-- 3D-превью и свойства выбранного скина -->
+        <DockPanel Grid.Column="1">
+            <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0"
+                        Visibility="{Binding Selected, Converter={StaticResource NotNullToVisibility}}">
+                <DockPanel>
+                    <CheckBox DockPanel.Dock="Right" Content="Тонкие руки" IsChecked="{Binding Selected.IsSlim}"
+                              VerticalAlignment="Center" Margin="10,0,0,0" />
+                    <TextBox Text="{Binding Selected.Name, UpdateSourceTrigger=PropertyChanged}" ToolTip="Название скина в библиотеке" />
+                </DockPanel>
+                <Button Content="НАДЕТЬ СКИН" Command="{Binding ApplyCommand}" Style="{StaticResource PlayButton}"
+                        HorizontalAlignment="Stretch" Margin="0,8,0,0" />
+            </StackPanel>
+            <Border Background="{DynamicResource Brush.PanelDeep}" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="2">
+                <Grid>
+                    <skins:SkinViewer SkinPath="{Binding PreviewPath}" Slim="{Binding PreviewSlim}" CapePng="{Binding PreviewCape}" />
+                    <TextBlock Text="Тяните мышью, чтобы повернуть · двойной щелчок — исходный вид" Style="{StaticResource HintText}"
+                               HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,6" IsHitTestVisible="False" />
+                </Grid>
+            </Border>
+        </DockPanel>
+
+        <!-- Аккаунт: текущий скин и плащи -->
+        <DockPanel Grid.Column="2" Margin="12,0,0,0">
+            <TextBlock DockPanel.Dock="Top" Text="На аккаунте" Style="{StaticResource SectionTitle}" Margin="2,0,0,6" />
+            <Border DockPanel.Dock="Top" Background="{DynamicResource Brush.PanelDeep}" BorderBrush="{DynamicResource Brush.Outline}"
+                    BorderThickness="2" Padding="8">
+                <DockPanel>
+                    <Image DockPanel.Dock="Left" Source="{Binding AccountSkinPreview}" Width="32" Height="64" Margin="0,0,10,0"
+                           RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding AccountInfo}" FontWeight="Bold" TextWrapping="Wrap" />
+                        <Button Content="В библиотеку" Command="{Binding SaveAccountSkinCommand}" Style="{StaticResource SmallButton}"
+                                HorizontalAlignment="Left" Margin="0,6,0,0" />
+                        <Button Content="Стандартный скин" Command="{Binding ResetCommand}" Style="{StaticResource SmallButton}"
+                                HorizontalAlignment="Left" Margin="0,4,0,0" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <DockPanel DockPanel.Dock="Top" Margin="2,12,0,6">
+                <Button DockPanel.Dock="Right" Content="Обновить" Command="{Binding RefreshAccountCommand}" Style="{StaticResource SmallButton}" />
+                <TextBlock Text="Плащи" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
+            </DockPanel>
+            <ListBox ItemsSource="{Binding Capes}" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                        <Setter Property="IsSelected" Value="{Binding IsActive, Mode=OneWay}" />
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Button Command="{Binding DataContext.SelectCapeCommand, ElementName=Root}" CommandParameter="{Binding}"
+                                HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Padding="4">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <ContentPresenter Margin="{TemplateBinding Padding}" />
+                                </ControlTemplate>
+                            </Button.Template>
+                            <DockPanel>
+                                <Border DockPanel.Dock="Left" Width="20" Height="32" Margin="0,0,10,0" Background="{DynamicResource Brush.Field}">
+                                    <Image Source="{Binding Preview}" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Border>
+                                <TextBlock Text="{Binding Title}" VerticalAlignment="Center" />
+                            </DockPanel>
+                        </Button>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+
+        <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding Status}" Style="{StaticResource HintText}" Margin="0,8,0,0" />
+    </Grid>
+</UserControl>
