@@ -14,7 +14,7 @@ public partial class App : Application
 
         // Тема должна быть применена до создания главного окна.
         var settings = LauncherSettings.Load();
-        var theme = Enum.TryParse<ThemeId>(settings.Theme, out var id) ? id : ThemeId.Auto;
+        var theme = ThemeManager.FromSetting(settings.Theme);
         if (ThemeManager.IsExclusive(theme))
         {
             // Эксклюзивная тема — только если активный аккаунт есть в благодарностях.

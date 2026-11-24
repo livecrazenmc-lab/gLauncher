@@ -65,6 +65,17 @@ public static class ThemeManager
     /// <summary>Эксклюзивные темы видны и применяются только людям из благодарностей.</summary>
     public static bool IsExclusive(ThemeId id) => id is ThemeId.Legends or ThemeId.Dungeons or ThemeId.Nether or ThemeId.End;
 
+    /// <summary>Сезонные и праздничные оформления — отдельно не выбираются, их подбирает тема «Сезонная» (Auto) по дате.</summary>
+    public static bool IsSeasonal(ThemeId id) =>
+        id is ThemeId.Spring or ThemeId.Summer or ThemeId.Autumn or ThemeId.Winter or ThemeId.NewYear or ThemeId.Easter or ThemeId.Halloween;
+
+    /// <summary>Тема из настроек: старые значения (конкретный сезон или праздник) превращаются в «Сезонную».</summary>
+    public static ThemeId FromSetting(string? value)
+    {
+        var id = Enum.TryParse<ThemeId>(value, out var parsed) ? parsed : ThemeId.Auto;
+        return IsSeasonal(id) ? ThemeId.Auto : id;
+    }
+
     public static ThemeDefinition Get(ThemeId id) => Themes.FirstOrDefault(t => t.Id == id) ?? Themes[0];
 
     /// <summary>Тема, которая реально применится: для «Авто» — по текущей дате.</summary>
