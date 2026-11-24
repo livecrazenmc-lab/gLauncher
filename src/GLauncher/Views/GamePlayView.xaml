@@ -13,7 +13,7 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,18,0">
-                    <TextBlock Text="УСТАНОВКА" FontFamily="{StaticResource Font.Display}" FontSize="11" Foreground="{DynamicResource Brush.TextDim}" Margin="2,0,0,6" />
+                    <TextBlock Text="УСТАНОВКА" FontFamily="{DynamicResource Font.Display}" FontSize="11" Foreground="{DynamicResource Brush.TextDim}" Margin="2,0,0,6" />
                     <ComboBox ItemsSource="{Binding Installs}" SelectedItem="{Binding SelectedInstall}" MaxWidth="320" HorizontalAlignment="Stretch"
                               DisplayMemberPath="Source" Visibility="{Binding HasInstalls, Converter={StaticResource BoolToVisibility}}" />
                     <TextBlock Text="{Binding InstallStatus}" Style="{StaticResource HintText}" Margin="2,6,0,0" />

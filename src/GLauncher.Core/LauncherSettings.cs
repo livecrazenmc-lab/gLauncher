@@ -30,6 +30,12 @@ public sealed class LauncherSettings
     /// <summary>Проверять обновления лаунчера при запуске.</summary>
     public bool CheckForUpdates { get; set; } = true;
 
+    /// <summary>Найденное при запуске обновление скачивается и ставится само, без кнопки «Обновить».</summary>
+    public bool AutoInstallUpdates { get; set; } = true;
+
+    /// <summary>Шрифт интерфейса (имя семейства шрифтов Windows). null — встроенный пиксельный Monocraft.</summary>
+    public string? UiFont { get; set; }
+
     public static LauncherSettings Load()
     {
         var settings = JsonFile.Load<LauncherSettings>(Paths.SettingsFile) ?? new LauncherSettings();

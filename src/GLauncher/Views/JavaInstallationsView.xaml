@@ -46,7 +46,7 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="Auto" MinWidth="150" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>

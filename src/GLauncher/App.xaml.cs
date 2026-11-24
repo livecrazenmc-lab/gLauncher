@@ -23,6 +23,7 @@ public partial class App : Application
             if (GLauncher.Core.Players.CreditsService.Find(uuid) is null) theme = ThemeId.Auto;
         }
         ThemeManager.Apply(ThemeManager.Resolve(theme));
+        FontManager.Apply(settings.UiFont);
 
         base.OnStartup(e);
     }

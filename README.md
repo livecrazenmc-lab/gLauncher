@@ -1,4 +1,4 @@
-﻿# gLauncher
+# gLauncher
 
 Лаунчер Minecraft Java Edition и Bedrock Edition для Windows (C# / WPF, .NET 8).
 Играть можно только с лицензионным аккаунтом Microsoft.
@@ -110,15 +110,22 @@ ISCC.exe /DAppVersion=0.3.0 installer\gLauncher.iss
 
 ## Оформление
 
-Тема «Блоки» лежит в [src/GLauncher/Themes](src/GLauncher/Themes):
+Стиль «Изометрия» лежит в [src/GLauncher/Themes](src/GLauncher/Themes):
 
-* [Theme.xaml](src/GLauncher/Themes/Theme.xaml) — палитра (раздел «Палитра» в начале файла) и стили всех контролов:
-  кнопки-блоки с фаской, поля, списки, вкладки, прокрутка, прогресс в виде шкалы опыта.
-  Именованные стили: `PlayButton`, `DangerButton`, `SmallButton`, `ConsoleList`, `FieldLabel`, `SectionTitle`, `HintText`, `WarningText`.
-* [PixelTextures.cs](src/GLauncher/Themes/PixelTextures.cs) — пиксельные текстуры 16×16 (камень, глубинный сланец, земля, дёрн, доски),
-  нарисованные кодом. В XAML: `Background="{themes:PixelTexture Kind=Stone, TileSize=64}"`.
+* [Theme.xaml](src/GLauncher/Themes/Theme.xaml) — стили всех контролов: стеклянные карточки, градиентные кнопки,
+  вкладки-«таблетки», боковая панель. Именованные стили: `Card`, `PlayButton`, `AccentButton`, `DangerButton`,
+  `SmallButton`, `ConsoleList`, `FieldLabel`, `SectionTitle`, `HintText`, `WarningText`, `HeroTitle`, `Chip`.
+* [ThemeManager.cs](src/GLauncher/Themes/ThemeManager.cs) — цвета каждой темы (основная, сезонная, эксклюзивные) и вид частиц.
+* [ParticleField.cs](src/GLauncher/Themes/ParticleField.cs) — частицы фона: снежинки, осенние листья, лепестки,
+  пух одуванчика и светлячки, угольки и летучие мыши, искры.
+* [FontManager.cs](src/GLauncher/Themes/FontManager.cs) — шрифт интерфейса: по умолчанию пиксельный, в настройках можно
+  выбрать любой шрифт Windows.
 
-Ассеты Mojang (шрифт, текстуры, звуки) не используются — всё нарисовано заново.
+Пиксельный шрифт — [Monocraft](https://github.com/IdreesInc/Monocraft) © Idrees Hassan, лицензия
+[SIL Open Font License 1.1](src/GLauncher/Assets/Fonts/OFL.txt); встроен в сборку. Это свободный шрифт в стиле Minecraft,
+а не шрифт самой игры.
+
+Ассеты Mojang (шрифт, текстуры, звуки) не используются.
 Официальные иконки игр в боковой панели в репозиторий и сборку не входят: лаунчер скачивает их из каталога
 Microsoft Store при запуске (кэш на неделю), а без сети показывает свои пиксельные иконки.
 

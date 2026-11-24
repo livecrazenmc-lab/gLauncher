@@ -255,6 +255,7 @@ public partial class JavaViewModel : ObservableObject
             ProfileChanged?.Invoke(this, EventArgs.Empty);
 
             Status = $"Игра запущена ({profile.Name})";
+            RunningGames++;
             process.Exited += (_, _) => Application.Current.Dispatcher.BeginInvoke(() =>
                 OnGameExited(profile, process.ExitCode, startedUtc));
             ApplyAfterLaunch();
@@ -275,8 +276,16 @@ public partial class JavaViewModel : ObservableObject
         }
     }
 
+    /// <summary>Сколько запущенных из лаунчера копий Java Edition ещё работает.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsGameRunning))]
+    private int runningGames;
+
+    public bool IsGameRunning => RunningGames > 0;
+
     private void OnGameExited(Profile profile, int exitCode, DateTime startedUtc)
     {
+        RunningGames = Math.Max(0, RunningGames - 1);
         var window = Application.Current.MainWindow;
         if (window is { WindowState: WindowState.Minimized })
         {

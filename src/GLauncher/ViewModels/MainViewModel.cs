@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -30,6 +30,16 @@ public partial class MainViewModel : ObservableObject
         GLauncher.Core.Players.CreditsService.Changed += () =>
             System.Windows.Application.Current?.Dispatcher.BeginInvoke(UpdatePerks);
         UpdatePerks();
+
+        // Автообновление не перезапускает лаунчер посреди игры, установки или загрузки
+        Updates.IsLauncherBusy = () => Java.IsBusy || Java.IsGameRunning || Content.IsBusy || Skins.IsBusy;
+        void Recheck(object? s, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName is "IsBusy" or "IsGameRunning") Updates.TryRestartPending();
+        }
+        Java.PropertyChanged += Recheck;
+        Content.PropertyChanged += Recheck;
+        Skins.PropertyChanged += Recheck;
     }
 
     /// <summary>Человек из благодарностей, если активный аккаунт есть в списке (сверка по UUID).</summary>
@@ -60,7 +70,7 @@ public partial class MainViewModel : ObservableObject
 
     public async Task InitializeAsync()
     {
-        var updates = Settings.CheckForUpdates ? Updates.CheckAsync(silent: true) : Task.CompletedTask;
+        var updates = Settings.CheckForUpdates ? Updates.CheckOnStartupAsync() : Task.CompletedTask;
         await Task.WhenAll(Accounts.InitializeAsync(), Java.LoadVersionsAsync(), Content.ReloadAsync(), updates,
             SettingsPage.Credits.RefreshAsync(), Skins.InitializeAsync(), RefreshGamesAsync(), Accounts.LoadInitialFaceAsync(),
             LoadIconsAsync());
@@ -136,9 +146,34 @@ public partial class UpdatesViewModel(LauncherSettings settings) : ObservableObj
 
     [ObservableProperty] private double progressValue;
 
-    public string AvailableText => Available is null ? "" : $"Доступна новая версия gLauncher {Available.Tag} (у вас {CurrentVersion}).";
+    /// <summary>Новая версия уже на месте exe, осталось перезапустить лаунчер (ждём, пока он освободится).</summary>
+    [ObservableProperty] private bool restartPending;
+
+    /// <summary>true — идёт игра, установка или загрузка: перезапуск откладывается.</summary>
+    public Func<bool>? IsLauncherBusy { get; set; }
+
+    public string AvailableText => Available is null ? ""
+        : RestartPending ? $"gLauncher {Available.Tag} установлен. Лаунчер перезапустится, когда закончится игра или загрузка."
+        : IsBusy && ProgressValue > 0 ? $"Загрузка gLauncher {Available.Tag}…"
+        : $"Доступна новая версия gLauncher {Available.Tag} (у вас {CurrentVersion}).";
+
+    public string InstallButtonText => RestartPending ? "Перезапустить сейчас" : "Обновить";
 
     partial void OnAvailableChanged(UpdateInfo? value) => OnPropertyChanged(nameof(AvailableText));
+    partial void OnRestartPendingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(AvailableText));
+        OnPropertyChanged(nameof(InstallButtonText));
+    }
+    partial void OnIsBusyChanged(bool value) => OnPropertyChanged(nameof(AvailableText));
+
+    /// <summary>Проверка при запуске; если включено — сразу скачать и поставить обновление.</summary>
+    public async Task CheckOnStartupAsync()
+    {
+        await CheckAsync(silent: true);
+        if (Available is not null && settings.AutoInstallUpdates && UpdateService.IsSupported)
+            await InstallAsync();
+    }
 
     public async Task CheckAsync(bool silent)
     {
@@ -169,6 +204,11 @@ public partial class UpdatesViewModel(LauncherSettings settings) : ObservableObj
     private async Task InstallAsync()
     {
         if (Available is null) return;
+        if (RestartPending)
+        {
+            RestartNow(); // кнопка «Перезапустить сейчас»
+            return;
+        }
         if (!UpdateService.IsSupported)
         {
             Status = "Автообновление работает только в опубликованной сборке. Скачайте релиз вручную.";
@@ -183,11 +223,12 @@ public partial class UpdatesViewModel(LauncherSettings settings) : ObservableObj
             {
                 Status = p.Stage;
                 ProgressValue = p.Total > 0 ? p.Done * 100.0 / p.Total : 0;
+                OnPropertyChanged(nameof(AvailableText));
             });
             await UpdateService.ApplyAsync(Available, progress, CancellationToken.None);
-            Status = "Перезапуск…";
-            UpdateService.Restart();
-            Application.Current.Shutdown();
+            // exe уже заменён: даже если лаунчер закроют сейчас, следующий запуск будет новой версией
+            RestartPending = true;
+            Status = $"Обновление {Available.Tag} установлено.";
         }
         catch (Exception ex)
         {
@@ -198,6 +239,21 @@ public partial class UpdatesViewModel(LauncherSettings settings) : ObservableObj
             IsBusy = false;
             ProgressValue = 0;
         }
+        TryRestartPending();
+    }
+
+    /// <summary>Перезапуск в новую версию, как только лаунчер ничем не занят.</summary>
+    public void TryRestartPending()
+    {
+        if (!RestartPending || IsBusy || IsLauncherBusy?.Invoke() == true) return;
+        RestartNow();
+    }
+
+    private void RestartNow()
+    {
+        Status = "Перезапуск…";
+        UpdateService.Restart();
+        Application.Current.Shutdown();
     }
 
     [RelayCommand]
@@ -215,6 +271,17 @@ public partial class UpdatesViewModel(LauncherSettings settings) : ObservableObj
         set
         {
             settings.CheckForUpdates = value;
+            settings.Save();
+            OnPropertyChanged();
+        }
+    }
+
+    public bool AutoInstall
+    {
+        get => settings.AutoInstallUpdates;
+        set
+        {
+            settings.AutoInstallUpdates = value;
             settings.Save();
             OnPropertyChanged();
         }
@@ -260,6 +327,26 @@ public partial class SettingsViewModel : ObservableObject
     public UpdatesViewModel Updates { get; }
 
     public CreditsViewModel Credits { get; } = new();
+
+    // --- Шрифт интерфейса: пиксельный по умолчанию или любой из системы ---
+
+    private List<FontOption>? _fontOptions;
+
+    /// <summary>Список строится при первом открытии настроек (шрифтов в системе бывают сотни).</summary>
+    public List<FontOption> FontOptions => _fontOptions ??= FontManager.Options();
+
+    public FontOption SelectedFont
+    {
+        get => FontOptions.FirstOrDefault(o => string.Equals(o.Family, _settings.UiFont, StringComparison.OrdinalIgnoreCase)) ?? FontOptions[0];
+        set
+        {
+            if (value is null) return;
+            _settings.UiFont = value.Family;
+            _settings.Save();
+            FontManager.Apply(value.Family);
+            OnPropertyChanged();
+        }
+    }
 
     /// <summary>Анимированные частицы на фоне (снег, листья…). Выключаются в «Оформлении».</summary>
     public bool AnimatedBackground

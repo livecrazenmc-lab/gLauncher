@@ -11,7 +11,8 @@ public enum ThemeId
 }
 
 /// <summary>Анимированные частицы на фоне окна — «характер» темы.</summary>
-public enum ParticleKind { None, Snow, Leaves, Petals, Fireflies, Embers, Sparkles, Motes }
+/// <summary>Частицы фона. Dandelions — лето: пух одуванчика и светлячки.</summary>
+public enum ParticleKind { None, Snow, Leaves, Petals, Fireflies, Embers, Sparkles, Motes, Dandelions }
 
 /// <summary>
 /// Тема стиля «Изометрия»: тёмный градиент фона, пара акцентных цветов (кнопки, свечения, сетка),
@@ -43,11 +44,11 @@ public static class ThemeManager
         new(ThemeId.Blocks, "Изометрия", C("#0C1016"), C("#121A24"), C("#4ADE80"), C("#22D3EE"), C("#A7F3D0"),
             ParticleKind.Motes, [C("#4ADE80"), C("#22D3EE")]),
         new(ThemeId.Spring, "Весна", C("#0E1412"), C("#17211C"), C("#F472B6"), C("#86EFAC"), C("#FBCFE8"),
-            ParticleKind.Petals, [C("#F9A8D4"), C("#FBCFE8"), C("#FFFFFF")]),
+            ParticleKind.Petals, [C("#FFE4E6"), C("#FBCFE8"), C("#F9A8D4"), C("#F472B6"), C("#FDA4AF")]),
         new(ThemeId.Summer, "Лето", C("#0B1119"), C("#11202C"), C("#FBBF24"), C("#38BDF8"), C("#FDE68A"),
-            ParticleKind.Fireflies, [C("#FDE047"), C("#FEF08A")]),
+            ParticleKind.Dandelions, [C("#FFFFFF"), C("#FEF3C7"), C("#FDE047")]),
         new(ThemeId.Autumn, "Осень", C("#140F0C"), C("#1F1712"), C("#FB923C"), C("#F43F5E"), C("#FED7AA"),
-            ParticleKind.Leaves, [C("#FB923C"), C("#F97316"), C("#DC2626"), C("#FACC15")]),
+            ParticleKind.Leaves, [C("#FACC15"), C("#FBBF24"), C("#F59E0B"), C("#F97316"), C("#EA580C"), C("#DC2626"), C("#B91C1C")]),
         new(ThemeId.Winter, "Зима", C("#0A1020"), C("#121C30"), C("#93C5FD"), C("#E0F2FE"), C("#DBEAFE"),
             ParticleKind.Snow, [C("#FFFFFF"), C("#E0F2FE")]),
         new(ThemeId.NewYear, "Новый год", C("#0E0E1A"), C("#1B1428"), C("#F43F5E"), C("#FBBF24"), C("#FDE68A"),

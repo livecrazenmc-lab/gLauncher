@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -27,6 +27,23 @@ public partial class MainWindow : Window
         MaximizeButton.Click += (_, _) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
         CloseButton.Click += (_, _) => Close();
         StateChanged += (_, _) => OnStateChanged();
+
+        // Плавная смена страниц и вкладок: содержимое проявляется и чуть всплывает
+        Root.AddHandler(System.Windows.Controls.Primitives.Selector.SelectionChangedEvent,
+            new SelectionChangedEventHandler(OnTabChanged));
+    }
+
+    private static readonly IEasingFunction PageEase = new CubicEase { EasingMode = EasingMode.EaseOut };
+
+    private void OnTabChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.OriginalSource is not TabControl || e.AddedItems.Count == 0 || e.AddedItems[0] is not TabItem { Content: FrameworkElement page })
+            return;
+        if (page.RenderTransform is not TranslateTransform shift)
+            page.RenderTransform = shift = new TranslateTransform();
+        var duration = TimeSpan.FromMilliseconds(260);
+        page.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, duration) { EasingFunction = PageEase });
+        shift.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(10, 0, duration) { EasingFunction = PageEase });
     }
 
     /// <summary>

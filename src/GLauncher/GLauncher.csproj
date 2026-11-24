@@ -16,6 +16,8 @@
 
   <ItemGroup>
     <Resource Include="Assets\gLauncher.ico" />
+    <!-- Monocraft (SIL OFL 1.1, github.com/IdreesInc/Monocraft) — пиксельный шрифт по умолчанию; лицензия в Assets\Fonts\OFL.txt -->
+    <Resource Include="Assets\Fonts\*.ttf" />
   </ItemGroup>
 
   <ItemGroup>

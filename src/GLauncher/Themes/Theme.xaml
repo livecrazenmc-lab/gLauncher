@@ -7,8 +7,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ============================ Шрифты, эффекты, геометрия ============================ -->
-    <FontFamily x:Key="Font.Display">Bahnschrift SemiBold, Segoe UI Semibold</FontFamily>
-    <FontFamily x:Key="Font.Text">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <!-- По умолчанию — пиксельный Monocraft (встроен, SIL OFL 1.1). Шрифт меняется в настройках: FontManager подменяет оба ключа. -->
+    <FontFamily x:Key="Font.Display">pack://application:,,,/gLauncher;component/Assets/Fonts/#Monocraft, Segoe UI Semibold</FontFamily>
+    <FontFamily x:Key="Font.Text">pack://application:,,,/gLauncher;component/Assets/Fonts/#Monocraft, Segoe UI</FontFamily>
 
     <!-- Мягкая тень под текстом на обложках -->
     <DropShadowEffect x:Key="Effect.TextShadow" ShadowDepth="0" BlurRadius="14" Color="#000000" Opacity="0.55" />
@@ -60,16 +61,47 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Hover" Property="Opacity" Value="1" />
                             <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Brush.OutlineStrong}" />
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.15" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Hover" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.25" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Face" Property="BorderBrush" Value="{DynamicResource Brush.AccentLight}" />
                         </Trigger>
+                        <!-- Плавное нажатие: кнопка мягко «проседает» и возвращается -->
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="RenderTransform">
-                                <Setter.Value><ScaleTransform ScaleX="0.97" ScaleY="0.97" /></Setter.Value>
-                            </Setter>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="0.96" Duration="0:0:0.08" />
+                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="0.96" Duration="0:0:0.08" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="1" Duration="0:0:0.22">
+                                            <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.4" /></DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="1" Duration="0:0:0.22">
+                                            <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.4" /></DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Face" Property="Background" Value="{DynamicResource Brush.FaceDisabled}" />
@@ -87,7 +119,7 @@
         <Setter Property="Background" Value="{DynamicResource Brush.AccentGradient}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.OnAccent}" />
         <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="FontFamily" Value="{StaticResource Font.Display}" />
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Display}" />
         <Setter Property="FontSize" Value="20" />
         <Setter Property="Padding" Value="44,12" />
         <Setter Property="MinWidth" Value="200" />
@@ -116,13 +148,45 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Glow" Property="Opacity" Value="0.95" />
-                            <Setter TargetName="Shine" Property="Opacity" Value="0.35" />
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Glow" Storyboard.TargetProperty="Opacity" To="0.95" Duration="0:0:0.25" />
+                                        <DoubleAnimation Storyboard.TargetName="Shine" Storyboard.TargetProperty="Opacity" To="0.35" Duration="0:0:0.25" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Glow" Storyboard.TargetProperty="Opacity" To="0.55" Duration="0:0:0.35" />
+                                        <DoubleAnimation Storyboard.TargetName="Shine" Storyboard.TargetProperty="Opacity" To="0.22" Duration="0:0:0.35" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
                         </Trigger>
+                        <!-- Плавное нажатие: кнопка мягко «проседает» и возвращается -->
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="RenderTransform">
-                                <Setter.Value><ScaleTransform ScaleX="0.97" ScaleY="0.97" /></Setter.Value>
-                            </Setter>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="0.96" Duration="0:0:0.08" />
+                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="0.96" Duration="0:0:0.08" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="1" Duration="0:0:0.22">
+                                            <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.4" /></DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="1" Duration="0:0:0.22">
+                                            <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.4" /></DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Face" Property="Background" Value="{DynamicResource Brush.FaceDisabled}" />
@@ -651,7 +715,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="TabControl">
                     <DockPanel>
-                        <Border DockPanel.Dock="Left" Width="248" Margin="12,0,0,12" Padding="0,8"
+                        <Border DockPanel.Dock="Left" Width="268" Margin="12,0,0,12" Padding="0,8"
                                 Background="{DynamicResource Brush.PanelDeep}" BorderBrush="{DynamicResource Brush.Outline}"
                                 BorderThickness="1" CornerRadius="18">
                             <DockPanel IsItemsHost="True" LastChildFill="False" />
@@ -707,7 +771,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="TabItem">
                     <ContentPresenter ContentSource="Header" Margin="24,16,10,6" TextElement.FontSize="11"
-                                      TextElement.FontFamily="{StaticResource Font.Display}"
+                                      TextElement.FontFamily="{DynamicResource Font.Display}"
                                       TextElement.Foreground="{DynamicResource Brush.TextDim}" />
                 </ControlTemplate>
             </Setter.Value>
@@ -742,7 +806,7 @@
                         <DockPanel>
                             <ContentPresenter DockPanel.Dock="Top" ContentSource="Header" Margin="0,0,0,10"
                                               TextElement.Foreground="{DynamicResource Brush.TextGold}"
-                                              TextElement.FontFamily="{StaticResource Font.Display}" TextElement.FontSize="15" />
+                                              TextElement.FontFamily="{DynamicResource Font.Display}" TextElement.FontSize="15" />
                             <ContentPresenter />
                         </DockPanel>
                     </Border>
@@ -817,7 +881,7 @@
 
     <Style x:Key="SectionTitle" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{DynamicResource Brush.TextGold}" />
-        <Setter Property="FontFamily" Value="{StaticResource Font.Display}" />
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Display}" />
         <Setter Property="FontSize" Value="15" />
     </Style>
 
@@ -833,14 +897,14 @@
 
     <!-- Крупный заголовок обложки -->
     <Style x:Key="HeroTitle" TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="{StaticResource Font.Display}" />
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Display}" />
         <Setter Property="FontSize" Value="46" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text}" />
         <Setter Property="Effect" Value="{StaticResource Effect.TextShadow}" />
     </Style>
 
     <Style x:Key="HeroSubtitle" TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="{StaticResource Font.Display}" />
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Display}" />
         <Setter Property="FontSize" Value="17" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.AccentLight}" />
     </Style>
