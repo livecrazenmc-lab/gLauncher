@@ -1,0 +1,65 @@
+<UserControl x:Class="GLauncher.Views.JavaPlayView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Вкладка «Играть»: обложка и нижняя панель с выбором установки и кнопкой запуска, как в официальном лаунчере -->
+    <DockPanel Margin="6">
+        <Border DockPanel.Dock="Bottom" Margin="0,10,0,0" Padding="14,10"
+                Background="{DynamicResource Brush.PanelDeep}" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
+                    <TextBlock Text="Установка" Style="{StaticResource HintText}" Margin="0,0,0,4" />
+                    <ComboBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}" HorizontalAlignment="Stretch" MaxWidth="380">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock FontSize="11" Foreground="{DynamicResource Brush.TextDim}">
+                                        <Run Text="{Binding MinecraftVersion, Mode=OneWay}" />
+                                        <Run Text="·" />
+                                        <Run Text="{Binding Loader, Mode=OneWay}" />
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <Button Content="ИГРАТЬ" Command="{Binding PlayCommand}" Style="{StaticResource PlayButton}" MinWidth="240" />
+                    <Button Content="Отмена" Command="{Binding CancelCommand}" Style="{StaticResource SmallButton}" HorizontalAlignment="Center" Margin="0,6,0,0"
+                            Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                </StackPanel>
+
+                <TextBlock Grid.Column="2" Text="{Binding LicenseStatus}" TextWrapping="Wrap" TextAlignment="Right"
+                           VerticalAlignment="Center" HorizontalAlignment="Right" Margin="16,0,0,0" FontWeight="SemiBold"
+                           Effect="{StaticResource Effect.TextShadow}" />
+            </Grid>
+        </Border>
+
+        <!-- Обложка -->
+        <Border BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="2" ClipToBounds="True">
+            <Grid>
+                <Border Background="{DynamicResource Texture.Background}" />
+                <Border Background="#66000000" />
+                <!-- «Земля» с травой внизу обложки -->
+                <Border Height="72" VerticalAlignment="Bottom" Background="{DynamicResource Texture.Header}"
+                        BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="0,2,0,0" />
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
+                    <TextBlock Text="MINECRAFT" FontSize="44" FontWeight="Black" HorizontalAlignment="Center" Effect="{StaticResource Effect.TextShadow}" />
+                    <TextBlock Text="JAVA EDITION" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource Brush.AccentLight}" Effect="{StaticResource Effect.TextShadow}" />
+                    <TextBlock Text="{Binding Status}" TextWrapping="Wrap" TextAlignment="Center" Margin="0,24,0,0" MaxWidth="560"
+                               Effect="{StaticResource Effect.TextShadow}" />
+                    <ProgressBar Margin="0,10,0,0" Width="420" Value="{Binding ProgressValue}" IsIndeterminate="{Binding ProgressIndeterminate}"
+                                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DockPanel>
+</UserControl>

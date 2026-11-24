@@ -57,7 +57,9 @@ ISCC.exe /DAppVersion=0.3.0 installer\gLauncher.iss
 | Сборки | Импорт `.mrpack` из файла или из поиска Modrinth (создаёт профиль), экспорт профиля в `.mrpack` |
 | Удобства | Автовход на сервер, свернуть/закрыть лаунчер после запуска, отчёт о сбое игры, предупреждение о нехватке RAM |
 | Обновления | Проверка GitHub Releases при запуске и установка новой версии в один клик |
-| Bedrock | Проверка установки Minecraft for Windows / Preview и запуск |
+| Bedrock | Выбор версии «последний выпуск / Minecraft Preview», запуск, установка и обновление через Microsoft Store |
+| Другие игры | Minecraft Dungeons, Dungeons II и Legends: поиск установки (Microsoft Store/Xbox и Steam) и запуск |
+| Интерфейс | Боковая панель игр и вкладки как в официальном лаунчере; списки изменений всех игр с сервера Mojang |
 
 ## Версии
 
@@ -122,6 +124,7 @@ src/GLauncher          WPF-интерфейс (MVVM, CommunityToolkit.Mvvm)
 * Forge и NeoForge ставятся их официальными установщиками (`--installClient`). Очень старые версии Forge так не устанавливаются;
   NeoForge поддерживает Minecraft 1.20.2 и новее.
 * У подписчиков Game Pass лицензия Bedrock может не отображаться в entitlements.
+
 
 
 
