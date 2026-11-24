@@ -9,8 +9,11 @@ public enum PixelTextureKind
 {
     // Шапка (блок сбоку: верхний слой + земля)
     GrassBlock, SunnyGrass, FlowerGrass, PastelGrass, AutumnGrass, SnowyGrass, GarlandGrass, CursedGrass,
+    // Шапка эксклюзивных тем (для людей из благодарностей)
+    LegendsGrass, DungeonMoss, CrimsonNylium, EndStoneTop,
     // Фон
     Stone, Deepslate, MossyStone, FrozenStone, SpeckledStone, Dirt, Planks, DarkPlanks, DarkBricks,
+    LegendsStone, Netherrack, Obsidian,
 }
 
 /// <summary>
@@ -67,6 +70,19 @@ public static class PixelTextures
             PixelTextureKind.CursedGrass => TopBlock(rnd, (0x4E, 0x2E, 0x62), (0x2E, 0x1A, 0x3A),
                 [((0xFF, 0x8C, 0x1A), 4)], dirt: DarkDirtPixel),
 
+            // Эксклюзивные: сочная бирюзовая трава Legends, мох подземелий, багровый нилий, камень Энда
+            PixelTextureKind.LegendsGrass => TopBlock(rnd, (0x3F, 0xC0, 0x8E), (0x27, 0x86, 0x66),
+                [((0x7F, 0xE8, 0xFF), 4), ((0xFF, 0xE2, 0x6A), 3)]),
+            PixelTextureKind.DungeonMoss => TopBlock(rnd, (0x4C, 0x6E, 0x34), (0x2E, 0x46, 0x22),
+                [((0x7C, 0xC2, 0x4A), 3)], dirt: DarkDirtPixel),
+            PixelTextureKind.CrimsonNylium => TopBlock(rnd, (0xA8, 0x1E, 0x2E), (0x6E, 0x10, 0x1C),
+                [((0xFF, 0x6A, 0x3A), 3)], dirt: NetherrackPixel),
+            PixelTextureKind.EndStoneTop => TopBlock(rnd, (0x8E, 0x5C, 0xB8), (0x5E, 0x38, 0x80),
+                [((0xE8, 0xC8, 0xFF), 4)], dirt: EndStonePixel),
+            PixelTextureKind.LegendsStone => Speckle(Stone(rnd, 0x2C, 0x38, 0x3C, cracks: 6), rnd, [(0x3F, 0xC0, 0x8E), (0x4A, 0x8E, 0xC8)], 12),
+            PixelTextureKind.Netherrack => Fill(rnd, NetherrackPixel),
+            PixelTextureKind.Obsidian => Speckle(Fill(rnd, r => { var d = r.Next(-4, 5); return Rgb(0x14 + d, 0x0C + d, 0x22 + d); }),
+                rnd, [(0x4A, 0x26, 0x7A), (0x2C, 0x16, 0x4A)], 22),
             PixelTextureKind.Stone => Stone(rnd, 0x34, 0x34, 0x3A, cracks: 7),
             PixelTextureKind.Deepslate => Deepslate(rnd),
             PixelTextureKind.MossyStone => Speckle(Stone(rnd, 0x33, 0x36, 0x34, cracks: 6), rnd, [(0x3F, 0x6B, 0x2A), (0x4E, 0x80, 0x34)], 22),
@@ -237,6 +253,23 @@ public static class PixelTextures
             1 => Rgb(0x5A + d, 0x3A + d, 0x2C + d),
             _ => Rgb(0x3E + d, 0x28 + d, 0x20 + d),
         };
+    }
+
+    private static uint NetherrackPixel(Random rnd)
+    {
+        var d = rnd.Next(-8, 9);
+        return rnd.Next(6) switch
+        {
+            0 => Rgb(0x4A + d, 0x12 + d / 2, 0x14),
+            1 => Rgb(0x8A + d, 0x2E + d / 2, 0x2C),
+            _ => Rgb(0x6A + d, 0x1E + d / 2, 0x20 + d / 2),
+        };
+    }
+
+    private static uint EndStonePixel(Random rnd)
+    {
+        var d = rnd.Next(-7, 8);
+        return rnd.Next(7) == 0 ? Rgb(0xB8 + d, 0xB4 + d, 0x7C + d) : Rgb(0xD8 + d, 0xD6 + d, 0x9E + d);
     }
 
     private static uint[] Planks(Random rnd, (int R, int G, int B) wood, (int R, int G, int B) seamColor)

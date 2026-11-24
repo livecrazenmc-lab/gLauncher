@@ -3,7 +3,12 @@ using System.Windows.Media;
 
 namespace GLauncher.Themes;
 
-public enum ThemeId { Auto, Blocks, Spring, Summer, Autumn, Winter, NewYear, Easter, Halloween }
+public enum ThemeId
+{
+    Auto, Blocks, Spring, Summer, Autumn, Winter, NewYear, Easter, Halloween,
+    // Эксклюзивные — только для людей из благодарностей
+    Legends, Dungeons, Nether, End,
+}
 
 /// <summary>
 /// Тема = палитра + текстуры шапки и фона. Стили контролов (Theme.xaml) общие для всех тем
@@ -45,7 +50,20 @@ public static class ThemeManager
             C("#8A5FC4"), C("#D6B8FF"), C("#FFE08A"), C("#F7A8C8"), C("#C2569A"), C("#8A5FC4"), C("#5C5866"), C("#8E3250")),
         new(ThemeId.Halloween, "Хэллоуин", PixelTextureKind.CursedGrass, PixelTextureKind.DarkBricks,
             C("#C9591A"), C("#FF9A3D"), C("#C58BFF"), C("#FF9A3D"), C("#B44C0F"), C("#7B3FB5"), C("#4A4250"), C("#6E1F3A")),
+
+        // ---- Эксклюзивные темы (благодарности) ----
+        new(ThemeId.Legends, "★ Legends", PixelTextureKind.LegendsGrass, PixelTextureKind.LegendsStone,
+            C("#1F9E86"), C("#5FE3C4"), C("#FFD66A"), C("#7FE8FF"), C("#2F9ED0"), C("#E0A030"), C("#4E5E66"), C("#9A3A2E")),
+        new(ThemeId.Dungeons, "★ Dungeons", PixelTextureKind.DungeonMoss, PixelTextureKind.Deepslate,
+            C("#2E9E4E"), C("#4FE07A"), C("#FFB648"), C("#4FE07A"), C("#1F7A3A"), C("#C97A1E"), C("#4E4E54"), C("#8A2A2A")),
+        new(ThemeId.Nether, "★ Нижний мир", PixelTextureKind.CrimsonNylium, PixelTextureKind.Netherrack,
+            C("#B0222E"), C("#FF6A4A"), C("#FFC94A"), C("#FF8A3A"), C("#B03A14"), C("#F2A02A"), C("#5A3A3C"), C("#6E0F18")),
+        new(ThemeId.End, "★ Энд", PixelTextureKind.EndStoneTop, PixelTextureKind.Obsidian,
+            C("#7E3FC0"), C("#C08BFF"), C("#E8E6A8"), C("#D6A8FF"), C("#7E3FC0"), C("#C08BFF"), C("#4A4058"), C("#8A2A5A")),
     ];
+
+    /// <summary>Эксклюзивные темы видны и применяются только людям из благодарностей.</summary>
+    public static bool IsExclusive(ThemeId id) => id is ThemeId.Legends or ThemeId.Dungeons or ThemeId.Nether or ThemeId.End;
 
     public static ThemeDefinition Get(ThemeId id) => Themes.FirstOrDefault(t => t.Id == id) ?? Themes[0];
 
