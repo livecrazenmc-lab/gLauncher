@@ -36,8 +36,6 @@ public partial class MainWindow : Window
     private void OnStateChanged()
     {
         var maximized = WindowState == WindowState.Maximized;
-        var border = SystemParameters.WindowResizeBorderThickness;
-        Root.Margin = maximized ? new Thickness(border.Left + 1, border.Top + 1, border.Right + 1, border.Bottom + 1) : new Thickness(0);
         MaximizeButton.Content = maximized ? "\uE923" : "\uE922";
         MaximizeButton.ToolTip = maximized ? "Восстановить" : "Развернуть";
     }
@@ -134,6 +132,69 @@ public partial class MainWindow : Window
         DwmSetWindowAttribute(hwnd, DwmUseImmersiveDarkMode, ref on, sizeof(int));
         var round = DwmCornerRound;
         DwmSetWindowAttribute(hwnd, DwmWindowCornerPreference, ref round, sizeof(int));
+        HwndSource.FromHwnd(hwnd)?.AddHook(WndProc);
+    }
+
+    // --- Развёрнутое окно = рабочая область монитора (без панели задач, с любой стороны) ---
+    // Окно без системной рамки Windows по умолчанию разворачивает на весь монитор, поверх панели задач.
+
+    private const int WmGetMinMaxInfo = 0x0024;
+    private const int MonitorDefaultToNearest = 2;
+    private const int AbmGetState = 4, AbmGetTaskbarPos = 5, AbsAutoHide = 1;
+    private const int AbeLeft = 0, AbeTop = 1, AbeRight = 2, AbeBottom = 3;
+
+    [StructLayout(LayoutKind.Sequential)] private struct POINT { public int X, Y; }
+    [StructLayout(LayoutKind.Sequential)] private struct RECT { public int Left, Top, Right, Bottom; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MINMAXINFO { public POINT Reserved, MaxSize, MaxPosition, MinTrackSize, MaxTrackSize; }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct MONITORINFO { public int Size; public RECT Monitor, Work; public int Flags; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct APPBARDATA { public int Size; public IntPtr Hwnd; public uint CallbackMessage, Edge; public RECT Rect; public IntPtr LParam; }
+
+    [DllImport("user32.dll")] private static extern IntPtr MonitorFromWindow(IntPtr hwnd, int flags);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern bool GetMonitorInfo(IntPtr monitor, ref MONITORINFO info);
+    [DllImport("shell32.dll")] private static extern IntPtr SHAppBarMessage(int message, ref APPBARDATA data);
+
+    private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (msg != WmGetMinMaxInfo) return IntPtr.Zero;
+        var monitor = MonitorFromWindow(hwnd, MonitorDefaultToNearest);
+        var info = new MONITORINFO { Size = Marshal.SizeOf<MONITORINFO>() };
+        if (monitor == IntPtr.Zero || !GetMonitorInfo(monitor, ref info)) return IntPtr.Zero;
+
+        var work = info.Work;
+        var mon = info.Monitor;
+        // Автоскрываемая панель задач не уменьшает рабочую область — оставляем 2 пикселя у её края,
+        // иначе её нельзя будет вызвать мышью поверх развёрнутого окна
+        if (work.Equals(mon) && TaskbarAutoHideEdge() is { } edge)
+        {
+            switch (edge)
+            {
+                case AbeLeft: work.Left += 2; break;
+                case AbeTop: work.Top += 2; break;
+                case AbeRight: work.Right -= 2; break;
+                case AbeBottom: work.Bottom -= 2; break;
+            }
+        }
+
+        var mmi = Marshal.PtrToStructure<MINMAXINFO>(lParam);
+        mmi.MaxPosition = new POINT { X = work.Left - mon.Left, Y = work.Top - mon.Top };
+        mmi.MaxSize = new POINT { X = work.Right - work.Left, Y = work.Bottom - work.Top };
+        mmi.MaxTrackSize = new POINT { X = Math.Max(mmi.MaxTrackSize.X, mmi.MaxSize.X), Y = Math.Max(mmi.MaxTrackSize.Y, mmi.MaxSize.Y) };
+        Marshal.StructureToPtr(mmi, lParam, true);
+        handled = true;
+        return IntPtr.Zero;
+    }
+
+    private static int? TaskbarAutoHideEdge()
+    {
+        var data = new APPBARDATA { Size = Marshal.SizeOf<APPBARDATA>() };
+        if (((long)SHAppBarMessage(AbmGetState, ref data) & AbsAutoHide) == 0) return null;
+        return SHAppBarMessage(AbmGetTaskbarPos, ref data) != IntPtr.Zero ? (int)data.Edge : AbeBottom;
     }
 }
 
