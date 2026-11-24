@@ -100,7 +100,7 @@ public static class SkinApi
         if (resp.IsSuccessStatusCode) return json;
         throw new LauncherException(resp.StatusCode switch
         {
-            HttpStatusCode.Unauthorized => "Сессия аккаунта истекла. Нажмите «Проверить лицензии» на вкладке «Аккаунты».",
+            HttpStatusCode.Unauthorized => "Сессия аккаунта истекла. Откройте список аккаунтов (вверху слева) и нажмите «Лицензии».",
             HttpStatusCode.TooManyRequests => "Слишком много запросов к Minecraft. Подождите минуту и попробуйте снова.",
             HttpStatusCode.NotFound => "Профиль Java Edition не найден.",
             _ => $"Minecraft Services ответил ошибкой {(int)resp.StatusCode}: {json?["errorMessage"].Str() ?? json?["error"].Str() ?? "без подробностей"}",

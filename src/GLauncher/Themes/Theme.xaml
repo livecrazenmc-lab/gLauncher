@@ -1,4 +1,4 @@
-﻿<!--
+<!--
     Стиль gLauncher «Изометрия»: тёмный фон с «северным сиянием» и изометрической сеткой,
     полупрозрачные скруглённые карточки, светящиеся акценты, заголовки шрифтом Bahnschrift.
     Цвета каждой темы (основная, сезонные, эксклюзивные) — в ThemeManager.cs, сюда приходят как DynamicResource.
@@ -709,6 +709,21 @@
                     <ContentPresenter ContentSource="Header" Margin="24,16,10,6" TextElement.FontSize="11"
                                       TextElement.FontFamily="{StaticResource Font.Display}"
                                       TextElement.Foreground="{DynamicResource Brush.TextDim}" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Место в боковой панели под произвольный элемент (карточка аккаунта): не выбирается как вкладка -->
+    <Style x:Key="NavSlot" TargetType="TabItem">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="DockPanel.Dock" Value="Top" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabItem">
+                    <ContentPresenter ContentSource="Header" Margin="8,2,8,4" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

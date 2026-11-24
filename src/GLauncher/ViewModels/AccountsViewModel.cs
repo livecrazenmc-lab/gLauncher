@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -135,16 +135,41 @@ public partial class AccountsViewModel : ObservableObject
     private bool HasSelection() => Selected is not null;
 
     [RelayCommand(CanExecute = nameof(HasSelection))]
-    private void Remove()
+    private void Remove() => RemoveAccount(Selected);
+
+    /// <summary>Удалить конкретный аккаунт (крестик в списке аккаунтов).</summary>
+    [RelayCommand]
+    private void RemoveAccount(Account? account)
     {
-        if (Selected is null) return;
-        if (MessageBox.Show($"Удалить аккаунт {Selected.DisplayName}?", "gLauncher",
+        if (account is null) return;
+        if (MessageBox.Show($"Удалить аккаунт {account.DisplayName}?", "gLauncher",
                 MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
 
-        _store.Accounts.Remove(Selected);
+        var wasActive = account == Selected;
+        _store.Accounts.Remove(account);
         _store.Save();
-        SyncItems();
-        Selected = Items.FirstOrDefault();
+        Items.Remove(account);
+        if (wasActive) Selected = Items.FirstOrDefault();
+    }
+
+    /// <summary>Сделать аккаунт активным (щелчок в выпадающем списке).</summary>
+    [RelayCommand]
+    private void Activate(Account? account)
+    {
+        if (account is not null) Selected = account;
+    }
+
+    /// <summary>Переставить аккаунт (перетаскивание в списке); порядок сохраняется.</summary>
+    public void Move(Account account, int newIndex)
+    {
+        var oldIndex = _store.Accounts.IndexOf(account);
+        if (oldIndex < 0) return;
+        newIndex = Math.Clamp(newIndex, 0, _store.Accounts.Count - 1);
+        if (newIndex == oldIndex) return;
+        _store.Accounts.RemoveAt(oldIndex);
+        _store.Accounts.Insert(newIndex, account);
+        _store.Save();
+        Items.Move(Items.IndexOf(account), newIndex);
     }
 
     /// <summary>Принудительно обновить токены и перепроверить лицензии.</summary>
@@ -171,7 +196,7 @@ public partial class AccountsViewModel : ObservableObject
     /// <summary>Возвращает активный аккаунт с действующим токеном (при необходимости обновляет его).</summary>
     public async Task<Account> EnsureActiveValidAsync(CancellationToken ct)
     {
-        var account = Selected ?? throw new LauncherException("Сначала войдите в аккаунт Microsoft на вкладке «Аккаунты».");
+        var account = Selected ?? throw new LauncherException("Сначала войдите в аккаунт Microsoft — кнопка «Добавить аккаунт» вверху слева.");
         try
         {
             await CreateAuth().EnsureValidAsync(account, ct);
