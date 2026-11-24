@@ -3,20 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="10" MaxWidth="900" HorizontalAlignment="Left">
-            <GroupBox Header="Вход через Microsoft" Margin="0,0,0,12">
-                <StackPanel>
-                    <TextBlock Style="{StaticResource HintText}" Margin="0,0,0,8"
-                               Text="Client ID приложения Azure (Microsoft Entra). Тип учётных записей — «только личные аккаунты Microsoft», включён «Allow public client flows». Приложение должно быть одобрено Mojang для доступа к Minecraft API." />
-                    <TextBox Text="{Binding ClientId, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,6" />
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="Сохранить" Command="{Binding SaveCommand}" Background="{DynamicResource Brush.Accent}" Margin="0,0,6,0" />
-                        <Button Content="Как зарегистрировать приложение" Command="{Binding OpenAzureGuideCommand}" Margin="0,0,6,0" />
-                        <Button Content="Заявка на доступ к Minecraft API" Command="{Binding OpenApprovalFormCommand}" />
-                    </StackPanel>
-                    <TextBlock Text="{Binding Status}" Margin="0,6,0,0" />
-                </StackPanel>
-            </GroupBox>
-
             <GroupBox Header="Оформление" Margin="0,0,0,12">
                 <DockPanel>
                     <TextBlock Text="Тема:" VerticalAlignment="Center" Margin="0,0,8,0" />
@@ -70,6 +56,22 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+            </GroupBox>
+
+            <!-- Игрокам здесь ничего настраивать не нужно: Client ID вшит в лаунчер -->
+            <GroupBox Header="Для разработчиков" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="{Binding BuiltInClientIdStatus}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                    <TextBlock Style="{StaticResource HintText}" Margin="0,0,0,6"
+                               Text="Свой Client ID приложения Azure — необязательно, только для тестов. Пусто — используется встроенный." />
+                    <TextBox Text="{Binding ClientId, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,6" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Сохранить" Command="{Binding SaveCommand}" Margin="0,0,6,0" />
+                        <Button Content="Регистрация приложения" Command="{Binding OpenAzureGuideCommand}" Margin="0,0,6,0" />
+                        <Button Content="Заявка в Mojang" Command="{Binding OpenApprovalFormCommand}" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding Status}" Margin="0,6,0,0" />
+                </StackPanel>
             </GroupBox>
 
             <GroupBox Header="Данные лаунчера" Margin="0,0,0,12">

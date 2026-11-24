@@ -1,4 +1,4 @@
-# gLauncher
+﻿# gLauncher
 
 Лаунчер Minecraft Java Edition и Bedrock Edition для Windows (C# / WPF, .NET 8).
 Играть можно только с лицензионным аккаунтом Microsoft.
@@ -25,17 +25,25 @@ dotnet run --project src\GLauncher
 ISCC.exe /DAppVersion=0.3.0 installer\gLauncher.iss
 ```
 
-## Перед первым входом: Client ID
+## Вход через Microsoft: Client ID
 
-Вход идёт через Microsoft, поэтому лаунчеру нужно своё приложение Azure:
+Игрокам ничего настраивать не нужно: Client ID приложения Azure вшит в лаунчер
+(свойство `GLauncherClientId` в [Directory.Build.props](Directory.Build.props)). Это не секрет —
+публичный клиент без пароля, его можно хранить в репозитории.
 
-1. [Зарегистрируйте приложение](https://learn.microsoft.com/entra/identity-platform/quickstart-register-app) в Microsoft Entra:
-   * Supported account types — **Personal Microsoft accounts only**;
-   * Authentication → **Allow public client flows = Yes** (нужен для входа по коду).
-2. Подайте заявку Mojang на доступ к Minecraft API: <https://aka.ms/mce-reviewappid>.
-   Пока заявку не одобрят, вход будет падать с ошибкой «приложение Azure не одобрено».
-3. Вставьте Application (client) ID в лаунчере на вкладке «Настройки».
+Как получить свой Client ID (один раз, делает разработчик):
 
+1. Зайдите на <https://entra.microsoft.com> (или portal.azure.com) → **App registrations** → **New registration**.
+   * Name: `gLauncher`;
+   * Supported account types: **Personal Microsoft accounts only**;
+   * Redirect URI можно не указывать.
+2. В приложении: **Authentication** → **Allow public client flows** → **Yes** → Save (нужно для входа по коду).
+3. Скопируйте **Application (client) ID** со страницы Overview.
+4. Подайте заявку Mojang на доступ к Minecraft API: <https://aka.ms/mce-reviewappid> (указать Client ID и Tenant ID).
+   Пока заявку не одобрят, вход заканчивается ошибкой «приложение лаунчера ещё не одобрено Mojang».
+5. Впишите ID в `GLauncherClientId` в Directory.Build.props и выпустите новую версию — все лаунчеры получат её автообновлением.
+
+Для тестов можно указать свой Client ID в «Настройки → Для разработчиков» — он перекрывает встроенный.
 ## Что умеет
 
 | | |
@@ -101,3 +109,4 @@ src/GLauncher          WPF-интерфейс (MVVM, CommunityToolkit.Mvvm)
 * Forge и NeoForge ставятся их официальными установщиками (`--installClient`). Очень старые версии Forge так не устанавливаются;
   NeoForge поддерживает Minecraft 1.20.2 и новее.
 * У подписчиков Game Pass лицензия Bedrock может не отображаться в entitlements.
+

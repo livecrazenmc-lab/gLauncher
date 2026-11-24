@@ -12,4 +12,12 @@
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
   </ItemGroup>
 
+  <!-- Встроенный Client ID (из Directory.Build.props) — читается через AuthConfig -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>MicrosoftClientId</_Parameter1>
+      <_Parameter2>$(GLauncherClientId)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
 </Project>

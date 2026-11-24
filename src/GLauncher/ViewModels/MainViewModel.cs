@@ -201,6 +201,10 @@ public partial class SettingsViewModel : ObservableObject
 
     public string DataFolder => Paths.Root;
 
+    public string BuiltInClientIdStatus => GLauncher.Core.Auth.AuthConfig.HasBuiltInClientId
+        ? $"Вход через Microsoft настроен (встроенный Client ID {GLauncher.Core.Auth.AuthConfig.BuiltInClientId})."
+        : "В эту сборку не вшит Client ID: вход через Microsoft не работает. Укажите его в Directory.Build.props (GLauncherClientId) и выпустите новую версию.";
+
     partial void OnSelectedAfterLaunchChanged(AfterLaunchOption value)
     {
         _settings.AfterLaunch = value.Action;

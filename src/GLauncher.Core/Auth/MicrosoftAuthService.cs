@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -20,10 +20,13 @@ public sealed class MicrosoftAuthService(string clientId)
     private const string Scope = "XboxLive.signin offline_access";
     private const string McApi = "https://api.minecraftservices.com";
 
+    private const string NoClientIdMessage =
+        "Вход через Microsoft в этой сборке лаунчера не настроен. Установите последнюю версию gLauncher.";
+
     public async Task<DeviceCodeInfo> StartDeviceCodeAsync(CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(clientId))
-            throw new AuthException("Не задан Client ID приложения Azure. Укажите его на вкладке «Настройки».");
+            throw new AuthException(NoClientIdMessage);
 
         var (_, json) = await PostFormAsync($"{Authority}/devicecode", new()
         {
@@ -91,7 +94,7 @@ public sealed class MicrosoftAuthService(string clientId)
     public async Task RefreshAsync(Account account, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(clientId))
-            throw new AuthException("Не задан Client ID приложения Azure. Укажите его на вкладке «Настройки».");
+            throw new AuthException(NoClientIdMessage);
         if (string.IsNullOrEmpty(account.MsRefreshToken))
             throw new AuthException("Сессия аккаунта истекла. Удалите аккаунт и войдите заново.");
 
@@ -153,8 +156,8 @@ public sealed class MicrosoftAuthService(string clientId)
             ["identityToken"] = $"XBL3.0 x={uhs};{xstsToken}",
         }, ct);
         if (mcStatus == HttpStatusCode.Forbidden)
-            throw new AuthException("Minecraft API отклонил вход: приложение Azure (Client ID) не одобрено Mojang. " +
-                                    "Подайте заявку: https://aka.ms/mce-reviewappid");
+            throw new AuthException("Minecraft отклонил вход: приложение лаунчера ещё не одобрено Mojang для Minecraft API. " +
+                                    "(Для разработчика: заявка — https://aka.ms/mce-reviewappid)");
         var mcToken = mc?["access_token"].Str();
         if (mcStatus != HttpStatusCode.OK || mcToken is null)
             throw new AuthException($"Не удалось войти в Minecraft Services (код {(int)mcStatus}).");
@@ -246,3 +249,4 @@ public sealed class MicrosoftAuthService(string clientId)
         return (resp.StatusCode, json);
     }
 }
+

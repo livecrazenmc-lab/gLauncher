@@ -1,6 +1,14 @@
 <Project>
-  <!-- Версия лаунчера. Перед выпуском релиза поднимите её и создайте тег vX.Y.Z (см. README). -->
   <PropertyGroup>
+    <!-- Версия лаунчера. Перед выпуском релиза поднимите её и создайте тег vX.Y.Z (см. README). -->
     <Version>0.3.0</Version>
+
+    <!--
+      Client ID приложения Azure (Microsoft Entra), одобренного Mojang для Minecraft API.
+      Вшивается в лаунчер, поэтому игрокам ничего не нужно настраивать — они сразу входят через Microsoft.
+      Это не секрет (публичный клиент без пароля), его можно хранить в репозитории.
+      Как получить — README, раздел «Вход через Microsoft: Client ID».
+    -->
+    <GLauncherClientId></GLauncherClientId>
   </PropertyGroup>
 </Project>
