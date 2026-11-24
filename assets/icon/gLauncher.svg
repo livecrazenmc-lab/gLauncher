@@ -1,0 +1,11 @@
+<!-- Иконка gLauncher «контурный куб». .ico собирается из этого рисунка, каждый размер (16–256) отдельно. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1E2226"/><stop offset="1" stop-color="#111316"/></linearGradient>
+    <linearGradient id="top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9BE06A"/><stop offset="1" stop-color="#7CCB4E"/></linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="56" fill="url(#bg)"/>
+  <path d="M128,48 L202.48,91 L128,134 L53.52,91 Z" fill="url(#top)"/>
+  <path d="M128,48 L202.48,91 L202.48,177 L128,220 L53.52,177 L53.52,91 Z M128,134 L128,220 M128,134 L202.48,91 M128,134 L53.52,91"
+        fill="none" stroke="#9BE06A" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

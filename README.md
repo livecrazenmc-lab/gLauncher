@@ -121,6 +121,9 @@ ISCC.exe /DAppVersion=0.3.0 installer\gLauncher.iss
 * [FontManager.cs](src/GLauncher/Themes/FontManager.cs) — шрифт интерфейса: по умолчанию пиксельный, в настройках можно
   выбрать любой шрифт Windows.
 
+Иконка — вектор: исходники в [assets/icon](assets/icon) (.svg), в окне она нарисована как `Img.Logo` в Theme.xaml,
+а `gLauncher.ico` и `gLauncher-Setup.ico` содержат кадры 16–256 px, каждый отрисован отдельно.
+
 Пиксельный шрифт — [Monocraft](https://github.com/IdreesInc/Monocraft) © Idrees Hassan, лицензия
 [SIL Open Font License 1.1](src/GLauncher/Assets/Fonts/OFL.txt); встроен в сборку. Это свободный шрифт в стиле Minecraft,
 а не шрифт самой игры.

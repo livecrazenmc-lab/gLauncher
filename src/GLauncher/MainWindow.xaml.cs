@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Shell;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using GLauncher.Themes;
@@ -19,6 +20,25 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = _vm;
         SourceInitialized += (_, _) => ApplyWindowStyle();
+
+        // Рамка окна: своя (по умолчанию) или системная, окрашенная в цвета темы
+        _customChrome = WindowChrome.GetWindowChrome(this);
+        ApplyFrame(_vm.Settings.SystemFrame);
+        _vm.SettingsPage.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(SettingsViewModel.SystemFrame)) ApplyFrame(_vm.Settings.SystemFrame);
+        };
+        ThemeManager.Changed += () => Dispatcher.BeginInvoke(ApplyFrameColors);
+
+        // Боковая панель: сразу нужной ширины, дальше — плавно
+        Themes.Sidebar.SetPanelWidth(Sidebar, _vm.SidebarCollapsed ? Themes.Sidebar.CollapsedWidth : Themes.Sidebar.ExpandedWidth);
+        _vm.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName != nameof(MainViewModel.SidebarCollapsed)) return;
+            var to = _vm.SidebarCollapsed ? Themes.Sidebar.CollapsedWidth : Themes.Sidebar.ExpandedWidth;
+            Sidebar.BeginAnimation(Themes.Sidebar.PanelWidthProperty,
+                new DoubleAnimation(to, TimeSpan.FromMilliseconds(280)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut } });
+        };
         Loaded += async (_, _) => await _vm.InitializeAsync();
         Logo.MouseLeftButtonUp += OnLogoClick;
 
@@ -142,14 +162,69 @@ public partial class MainWindow : Window
     [DllImport("dwmapi.dll")]
     private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
 
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref uint value, int size);
+
     private void ApplyWindowStyle()
     {
         var hwnd = new WindowInteropHelper(this).Handle;
-        var on = 1;
-        DwmSetWindowAttribute(hwnd, DwmUseImmersiveDarkMode, ref on, sizeof(int));
         var round = DwmCornerRound;
         DwmSetWindowAttribute(hwnd, DwmWindowCornerPreference, ref round, sizeof(int));
+        ApplyFrameColors();
         HwndSource.FromHwnd(hwnd)?.AddHook(WndProc);
+    }
+
+    // --- Системная рамка окна (настройка) в цветах темы ---
+
+    private readonly WindowChrome? _customChrome;
+    private bool _systemFrame;
+
+    private const int DwmBorderColor = 34, DwmCaptionColor = 35, DwmTextColor = 36;
+    private const uint DwmColorDefault = 0xFFFFFFFF;
+
+    /// <summary>Своя рамка (заголовок рисует лаунчер) или системная — переключается на лету.</summary>
+    private void ApplyFrame(bool system)
+    {
+        _systemFrame = system;
+        if (system)
+        {
+            WindowChrome.SetWindowChrome(this, null);
+            WindowStyle = WindowStyle.SingleBorderWindow;
+        }
+        else
+        {
+            WindowStyle = WindowStyle.None;
+            WindowChrome.SetWindowChrome(this, _customChrome ?? new WindowChrome { CaptionHeight = 44, ResizeBorderThickness = new Thickness(6), GlassFrameThickness = new Thickness(0) });
+        }
+        // Свой заголовок не нужен при системном: оставляем только отступ сверху
+        TitleBar.Height = system ? 12 : 44;
+        foreach (UIElement child in TitleBar.Children) child.Visibility = system ? Visibility.Collapsed : Visibility.Visible;
+        ApplyFrameColors();
+    }
+
+    private static uint ColorRef(Color c) => (uint)(c.R | (c.G << 8) | (c.B << 16));
+
+    /// <summary>
+    /// Тёмный заголовок (Windows 10 1809+) и цвета рамки/заголовка/текста из текущей темы (Windows 11; на 10 игнорируются).
+    /// </summary>
+    private void ApplyFrameColors()
+    {
+        var hwnd = new WindowInteropHelper(this).Handle;
+        if (hwnd == IntPtr.Zero) return;
+        var dark = 1; // все темы лаунчера тёмные
+        DwmSetWindowAttribute(hwnd, DwmUseImmersiveDarkMode, ref dark, sizeof(int));
+
+        var theme = ThemeManager.Current;
+        uint caption = DwmColorDefault, border = DwmColorDefault, text = DwmColorDefault;
+        if (_systemFrame && theme is not null)
+        {
+            caption = ColorRef(theme.BaseTop);
+            border = ColorRef(theme.Accent);
+            text = ColorRef(Color.FromRgb(0xF1, 0xF5, 0xF9));
+        }
+        DwmSetWindowAttribute(hwnd, DwmCaptionColor, ref caption, sizeof(uint));
+        DwmSetWindowAttribute(hwnd, DwmBorderColor, ref border, sizeof(uint));
+        DwmSetWindowAttribute(hwnd, DwmTextColor, ref text, sizeof(uint));
     }
 
     // --- Развёрнутое окно = рабочая область монитора (без панели задач, с любой стороны) ---
@@ -178,7 +253,7 @@ public partial class MainWindow : Window
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
-        if (msg != WmGetMinMaxInfo) return IntPtr.Zero;
+        if (msg != WmGetMinMaxInfo || _systemFrame) return IntPtr.Zero; // системная рамка разворачивается сама
         var monitor = MonitorFromWindow(hwnd, MonitorDefaultToNearest);
         var info = new MONITORINFO { Size = Marshal.SizeOf<MONITORINFO>() };
         if (monitor == IntPtr.Zero || !GetMonitorInfo(monitor, ref info)) return IntPtr.Zero;

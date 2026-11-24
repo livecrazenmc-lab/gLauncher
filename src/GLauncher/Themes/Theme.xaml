@@ -4,12 +4,42 @@
     Цвета каждой темы (основная, сезонные, эксклюзивные) — в ThemeManager.cs, сюда приходят как DynamicResource.
 -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:themes="clr-namespace:GLauncher.Themes">
 
     <!-- ============================ Шрифты, эффекты, геометрия ============================ -->
     <!-- По умолчанию — пиксельный Monocraft (встроен, SIL OFL 1.1). Шрифт меняется в настройках: FontManager подменяет оба ключа. -->
     <FontFamily x:Key="Font.Display">pack://application:,,,/gLauncher;component/Assets/Fonts/#Monocraft, Segoe UI Semibold</FontFamily>
     <FontFamily x:Key="Font.Text">pack://application:,,,/gLauncher;component/Assets/Fonts/#Monocraft, Segoe UI</FontFamily>
+
+    <!-- Логотип gLauncher «контурный куб» — вектор (чёткий на любом масштабе); исходник: assets/icon/gLauncher.svg -->
+    <DrawingImage x:Key="Img.Logo">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Geometry="M64,8 H192 A56,56 0 0 1 248,64 V192 A56,56 0 0 1 192,248 H64 A56,56 0 0 1 8,192 V64 A56,56 0 0 1 64,8 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#1E2226" Offset="0" />
+                            <GradientStop Color="#111316" Offset="1" />
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M128,48 L202.48,91 L128,134 L53.52,91 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#9BE06A" Offset="0" />
+                            <GradientStop Color="#7CCB4E" Offset="1" />
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M128,48 L202.48,91 L202.48,177 L128,220 L53.52,177 L53.52,91 Z M128,134 L128,220 M128,134 L202.48,91 M128,134 L53.52,91">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#9BE06A" Thickness="12" LineJoin="Round" StartLineCap="Round" EndLineCap="Round" />
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
 
     <!-- Мягкая тень под текстом на обложках -->
     <DropShadowEffect x:Key="Effect.TextShadow" ShadowDepth="0" BlurRadius="14" Color="#000000" Opacity="0.55" />
@@ -715,7 +745,8 @@
             <Setter.Value>
                 <ControlTemplate TargetType="TabControl">
                     <DockPanel>
-                        <Border DockPanel.Dock="Left" Width="268" Margin="12,0,0,12" Padding="0,8"
+                        <Border DockPanel.Dock="Left" Margin="12,0,0,12" Padding="0,8" ClipToBounds="True"
+                                Width="{Binding (themes:Sidebar.PanelWidth), RelativeSource={RelativeSource TemplatedParent}}"
                                 Background="{DynamicResource Brush.PanelDeep}" BorderBrush="{DynamicResource Brush.Outline}"
                                 BorderThickness="1" CornerRadius="18">
                             <DockPanel IsItemsHost="True" LastChildFill="False" />
@@ -763,6 +794,11 @@
     </Style>
 
     <Style x:Key="NavSection" TargetType="TabItem">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding SidebarCollapsed}" Value="True">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+        </Style.Triggers>
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="DockPanel.Dock" Value="Top" />
         <Setter Property="IsEnabled" Value="False" />
@@ -773,6 +809,40 @@
                     <ContentPresenter ContentSource="Header" Margin="24,16,10,6" TextElement.FontSize="11"
                                       TextElement.FontFamily="{DynamicResource Font.Display}"
                                       TextElement.Foreground="{DynamicResource Brush.TextDim}" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Подпись пункта боковой панели: прячется, когда панель свёрнута до иконок -->
+    <Style x:Key="NavLabel" TargetType="TextBlock">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding SidebarCollapsed}" Value="True">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Кнопка в боковой панели, выглядит как пункт меню -->
+    <Style x:Key="NavButton" TargetType="Button">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextDim}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" Background="Transparent" CornerRadius="12" Padding="14,9,10,9">
+                        <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Brush.Hover}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

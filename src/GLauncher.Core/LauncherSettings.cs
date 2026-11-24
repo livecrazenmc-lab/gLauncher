@@ -36,6 +36,12 @@ public sealed class LauncherSettings
     /// <summary>Шрифт интерфейса (имя семейства шрифтов Windows). null — встроенный пиксельный Monocraft.</summary>
     public string? UiFont { get; set; }
 
+    /// <summary>Системная рамка окна вместо своей (окрашивается в цвета темы).</summary>
+    public bool SystemFrame { get; set; }
+
+    /// <summary>Боковая панель свёрнута до иконок.</summary>
+    public bool SidebarCollapsed { get; set; }
+
     public static LauncherSettings Load()
     {
         var settings = JsonFile.Load<LauncherSettings>(Paths.SettingsFile) ?? new LauncherSettings();

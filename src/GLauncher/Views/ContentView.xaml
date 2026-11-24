@@ -64,7 +64,7 @@
                         <Button Content="Обновить" Command="{Binding RefreshInstalledListCommand}" Style="{StaticResource SmallButton}" Margin="0,0,6,0" />
                         <Button Content="Папка" Command="{Binding OpenFolderCommand}" Style="{StaticResource SmallButton}" />
                     </StackPanel>
-                    <TextBlock Text="Установлено в профиле" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
+                    <TextBlock Text="Установлено" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="Установлено в выбранном профиле" />
                 </DockPanel>
                 <ListBox ItemsSource="{Binding Installed}" HorizontalContentAlignment="Stretch"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled">

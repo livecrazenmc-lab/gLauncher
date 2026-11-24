@@ -55,6 +55,22 @@ public partial class MainViewModel : ObservableObject
         SettingsPage.ApplyPerks(CreditedPerson);
     }
 
+    // --- Боковая панель: свёрнута до иконок или развёрнута (запоминается) ---
+
+    public bool SidebarCollapsed => Settings.SidebarCollapsed;
+    public string SidebarToggleText => SidebarCollapsed ? "Развернуть панель" : "Свернуть панель";
+    public string SidebarToggleGlyph => SidebarCollapsed ? "\uE76C" : "\uE76B";
+
+    [RelayCommand]
+    private void ToggleSidebar()
+    {
+        Settings.SidebarCollapsed = !Settings.SidebarCollapsed;
+        Settings.Save();
+        OnPropertyChanged(nameof(SidebarCollapsed));
+        OnPropertyChanged(nameof(SidebarToggleText));
+        OnPropertyChanged(nameof(SidebarToggleGlyph));
+    }
+
     public LauncherSettings Settings { get; }
     public AccountsViewModel Accounts { get; }
     public JavaViewModel Java { get; }
@@ -344,6 +360,18 @@ public partial class SettingsViewModel : ObservableObject
             _settings.UiFont = value.Family;
             _settings.Save();
             FontManager.Apply(value.Family);
+            OnPropertyChanged();
+        }
+    }
+
+    /// <summary>Системная рамка окна вместо своей; применяется сразу.</summary>
+    public bool SystemFrame
+    {
+        get => _settings.SystemFrame;
+        set
+        {
+            _settings.SystemFrame = value;
+            _settings.Save();
             OnPropertyChanged();
         }
     }

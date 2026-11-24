@@ -24,7 +24,7 @@
             </Button.Style>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="&#xE8FA;" FontFamily="Segoe MDL2 Assets" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0" />
-                <TextBlock Text="Добавить аккаунт" FontSize="14" VerticalAlignment="Center" />
+                <TextBlock Text="Добавить аккаунт" FontSize="14" VerticalAlignment="Center" Style="{StaticResource NavLabel}" />
             </StackPanel>
         </Button>
 
@@ -55,17 +55,28 @@
                 </Style>
             </Button.Style>
             <DockPanel>
-                <Border DockPanel.Dock="Left" Width="40" Height="40" Margin="0,0,12,0" CornerRadius="12"
+                <Border DockPanel.Dock="Left" Width="40" Height="40" CornerRadius="12"
                         BorderBrush="{DynamicResource Brush.OutlineStrong}" BorderThickness="1.5" Background="{DynamicResource Brush.Face}">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Margin" Value="0,0,12,0" />
+                            <Style.Triggers>
+                                <!-- Свёрнутая панель: только лицо скина по центру -->
+                                <DataTrigger Binding="{Binding SidebarCollapsed}" Value="True">
+                                    <Setter Property="Margin" Value="-2,0,0,0" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
                     <Image Source="{Binding Accounts.ActiveFace}" RenderOptions.BitmapScalingMode="NearestNeighbor" Margin="1">
                         <Image.Clip><RectangleGeometry Rect="0,0,35,35" RadiusX="10" RadiusY="10" /></Image.Clip>
                     </Image>
                 </Border>
-                <TextBlock x:Name="Chevron" DockPanel.Dock="Right" Text="&#xE70D;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                <TextBlock x:Name="Chevron" DockPanel.Dock="Right" Style="{StaticResource NavLabel}" Text="&#xE70D;" FontFamily="Segoe MDL2 Assets" FontSize="11"
                            VerticalAlignment="Center" Foreground="{DynamicResource Brush.TextDim}" RenderTransformOrigin="0.5,0.5">
                     <TextBlock.RenderTransform><RotateTransform /></TextBlock.RenderTransform>
                 </TextBlock>
-                <StackPanel VerticalAlignment="Center">
+                <StackPanel VerticalAlignment="Center" Visibility="{Binding Visibility, ElementName=Chevron}">
                     <TextBlock Text="{Binding Accounts.Selected.DisplayName}" FontSize="14" FontWeight="Bold" TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource Brush.Text}">
                         <TextBlock.Style>
