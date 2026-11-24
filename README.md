@@ -59,7 +59,7 @@ ISCC.exe /DAppVersion=0.3.0 installer\gLauncher.iss
 | Обновления | Проверка GitHub Releases при запуске и установка новой версии в один клик |
 | Bedrock | Выбор версии «последний выпуск / Minecraft Preview», запуск, установка и обновление через Microsoft Store |
 | Другие игры | Minecraft Dungeons, Dungeons II и Legends: поиск установки (Microsoft Store/Xbox и Steam) и запуск |
-| Интерфейс | Боковая панель игр и вкладки как в официальном лаунчере; списки изменений всех игр с сервера Mojang |
+| Интерфейс | Боковая панель игр и вкладки как в официальном лаунчере; списки изменений всех игр с сервера Mojang; официальные иконки игр |
 
 ## Темы
 
@@ -119,6 +119,8 @@ ISCC.exe /DAppVersion=0.3.0 installer\gLauncher.iss
   нарисованные кодом. В XAML: `Background="{themes:PixelTexture Kind=Stone, TileSize=64}"`.
 
 Ассеты Mojang (шрифт, текстуры, звуки) не используются — всё нарисовано заново.
+Официальные иконки игр в боковой панели в репозиторий и сборку не входят: лаунчер скачивает их из каталога
+Microsoft Store при запуске (кэш на неделю), а без сети показывает свои пиксельные иконки.
 
 ## Структура
 
@@ -143,6 +145,7 @@ src/GLauncher          WPF-интерфейс (MVVM, CommunityToolkit.Mvvm)
 * Forge и NeoForge ставятся их официальными установщиками (`--installClient`). Очень старые версии Forge так не устанавливаются;
   NeoForge поддерживает Minecraft 1.20.2 и новее.
 * У подписчиков Game Pass лицензия Bedrock может не отображаться в entitlements.
+
 
 
 

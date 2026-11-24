@@ -62,7 +62,51 @@ public partial class MainViewModel : ObservableObject
     {
         var updates = Settings.CheckForUpdates ? Updates.CheckAsync(silent: true) : Task.CompletedTask;
         await Task.WhenAll(Accounts.InitializeAsync(), Java.LoadVersionsAsync(), Content.ReloadAsync(), updates,
-            SettingsPage.Credits.RefreshAsync(), Skins.InitializeAsync(), RefreshGamesAsync(), Accounts.LoadInitialFaceAsync());
+            SettingsPage.Credits.RefreshAsync(), Skins.InitializeAsync(), RefreshGamesAsync(), Accounts.LoadInitialFaceAsync(),
+            LoadIconsAsync());
+    }
+
+    // --- Официальные иконки игр (скачиваются из каталога Microsoft Store, кэш на диске) ---
+    [ObservableProperty] private System.Windows.Media.ImageSource? javaIcon;
+    [ObservableProperty] private System.Windows.Media.ImageSource? bedrockIcon;
+    [ObservableProperty] private System.Windows.Media.ImageSource? dungeonsIcon;
+    [ObservableProperty] private System.Windows.Media.ImageSource? dungeonsIIIcon;
+    [ObservableProperty] private System.Windows.Media.ImageSource? legendsIcon;
+
+    private async Task LoadIconsAsync()
+    {
+        ShowIcons();                                         // сразу — из кэша
+        if ((await GameIcons.RefreshAsync(CancellationToken.None)).Count > 0) ShowIcons();
+    }
+
+    private void ShowIcons()
+    {
+        JavaIcon = LoadIcon(GameIconId.Java);
+        BedrockIcon = LoadIcon(GameIconId.Bedrock);
+        DungeonsIcon = LoadIcon(GameIconId.Dungeons);
+        DungeonsIIIcon = LoadIcon(GameIconId.DungeonsII);
+        LegendsIcon = LoadIcon(GameIconId.Legends);
+    }
+
+    private static System.Windows.Media.ImageSource? LoadIcon(GameIconId id)
+    {
+        if (GameIcons.Cached(id) is not { } path) return null;
+        try
+        {
+            var image = new System.Windows.Media.Imaging.BitmapImage();
+            using var stream = System.IO.File.OpenRead(path);
+            image.BeginInit();
+            image.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+            image.DecodePixelWidth = 64;
+            image.StreamSource = stream;
+            image.EndInit();
+            image.Freeze();
+            return image;
+        }
+        catch
+        {
+            return null; // битый файл — останется своя пиксельная иконка
+        }
     }
 
     /// <summary>Ищет установленные Dungeons, Dungeons II и Legends (Microsoft Store/Xbox и Steam).</summary>

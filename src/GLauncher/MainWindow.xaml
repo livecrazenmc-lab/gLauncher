@@ -98,7 +98,10 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Border Width="22" Height="22" Margin="0,0,10,0" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="1"
-                                Background="{themes:PixelTexture Kind=GrassBlock, TileSize=20}" />
+                                Background="{themes:PixelTexture Kind=GrassBlock, TileSize=20}">
+                            <!-- Официальная иконка (каталог Microsoft Store); пока не скачана — видна пиксельная -->
+                            <Image Source="{Binding JavaIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
+                        </Border>
                         <TextBlock Text="Java Edition" VerticalAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
@@ -117,7 +120,10 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Border Width="22" Height="22" Margin="0,0,10,0" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="1"
-                                Background="{themes:PixelTexture Kind=Stone, TileSize=20}" />
+                                Background="{themes:PixelTexture Kind=Stone, TileSize=20}">
+                            <!-- Официальная иконка (каталог Microsoft Store); пока не скачана — видна пиксельная -->
+                            <Image Source="{Binding BedrockIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
+                        </Border>
                         <TextBlock Text="Bedrock Edition" VerticalAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
@@ -132,7 +138,10 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Border Width="22" Height="22" Margin="0,0,10,0" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="1"
-                                Background="{themes:PixelTexture Kind=Planks, TileSize=20}" />
+                                Background="{themes:PixelTexture Kind=Planks, TileSize=20}">
+                            <!-- Официальная иконка (каталог Microsoft Store); пока не скачана — видна пиксельная -->
+                            <Image Source="{Binding DungeonsIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
+                        </Border>
                         <TextBlock Text="Minecraft Dungeons" VerticalAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
@@ -147,7 +156,10 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Border Width="22" Height="22" Margin="0,0,10,0" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="1"
-                                Background="{themes:PixelTexture Kind=DarkPlanks, TileSize=20}" />
+                                Background="{themes:PixelTexture Kind=DarkPlanks, TileSize=20}">
+                            <!-- Официальная иконка (каталог Microsoft Store); пока не скачана — видна пиксельная -->
+                            <Image Source="{Binding DungeonsIIIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
+                        </Border>
                         <TextBlock Text="Minecraft Dungeons II" VerticalAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
@@ -161,7 +173,10 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Border Width="22" Height="22" Margin="0,0,10,0" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="1"
-                                Background="{themes:PixelTexture Kind=MossyStone, TileSize=20}" />
+                                Background="{themes:PixelTexture Kind=MossyStone, TileSize=20}">
+                            <!-- Официальная иконка (каталог Microsoft Store); пока не скачана — видна пиксельная -->
+                            <Image Source="{Binding LegendsIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
+                        </Border>
                         <TextBlock Text="Minecraft Legends" VerticalAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
@@ -187,6 +202,7 @@
     <Canvas x:Name="FxLayer" IsHitTestVisible="False" ClipToBounds="True" />
     </Grid>
 </Window>
+
 
 
 
