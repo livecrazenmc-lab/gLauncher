@@ -62,7 +62,8 @@ public sealed class SkinViewer : Border
         _model.Transform = rotation;
         viewport.Children.Add(_model);
 
-        var grid = new Grid { Background = Brushes.Transparent, Cursor = Cursors.SizeWE };
+        // Курсор «Переместить» (крестик со стрелками) — подсказывает, что фигурку можно вращать.
+        var grid = new Grid { Background = Brushes.Transparent, Cursor = Cursors.SizeAll };
         grid.Children.Add(viewport);
         grid.Children.Add(_placeholder);
         Child = grid;
