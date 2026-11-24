@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -45,7 +45,7 @@ public partial class AccountsViewModel : ObservableObject
         ActiveAccountChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    private MicrosoftAuthService CreateAuth() => new(_settings.MicrosoftClientId);
+    private MicrosoftAuthService CreateAuth() => new(AuthConfig.Resolve(_settings));
 
     [RelayCommand]
     private async Task AddAsync()
@@ -154,7 +154,7 @@ public partial class AccountsViewModel : ObservableObject
     /// <summary>Тихая проверка при запуске лаунчера.</summary>
     public async Task InitializeAsync()
     {
-        if (Selected is null || string.IsNullOrWhiteSpace(_settings.MicrosoftClientId)) return;
+        if (Selected is null || string.IsNullOrWhiteSpace(AuthConfig.Resolve(_settings))) return;
         try { await EnsureActiveValidAsync(CancellationToken.None); }
         catch (Exception ex) { Status = ex.Message; }
     }
@@ -173,3 +173,4 @@ public partial class AccountsViewModel : ObservableObject
         foreach (var a in _store.Accounts) Items.Add(a);
     }
 }
+
