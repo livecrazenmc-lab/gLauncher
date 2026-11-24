@@ -1,4 +1,4 @@
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -18,9 +18,28 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         DataContext = _vm;
-        SourceInitialized += (_, _) => ApplyDarkTitleBar();
+        SourceInitialized += (_, _) => ApplyWindowStyle();
         Loaded += async (_, _) => await _vm.InitializeAsync();
         Logo.MouseLeftButtonUp += OnLogoClick;
+
+        // Кнопки своего заголовка окна
+        MinimizeButton.Click += (_, _) => WindowState = WindowState.Minimized;
+        MaximizeButton.Click += (_, _) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        CloseButton.Click += (_, _) => Close();
+        StateChanged += (_, _) => OnStateChanged();
+    }
+
+    /// <summary>
+    /// В развёрнутом виде окно без системной рамки выходит за края экрана на толщину рамки —
+    /// компенсируем отступом и меняем значок кнопки «развернуть/восстановить».
+    /// </summary>
+    private void OnStateChanged()
+    {
+        var maximized = WindowState == WindowState.Maximized;
+        var border = SystemParameters.WindowResizeBorderThickness;
+        Root.Margin = maximized ? new Thickness(border.Left + 1, border.Top + 1, border.Right + 1, border.Bottom + 1) : new Thickness(0);
+        MaximizeButton.Content = maximized ? "\uE923" : "\uE922";
+        MaximizeButton.ToolTip = maximized ? "Восстановить" : "Развернуть";
     }
 
     // --- Пасхалка для людей из благодарностей: 5 щелчков по логотипу → дождь из блоков ---
@@ -99,20 +118,22 @@ public partial class MainWindow : Window
         thanks.BeginAnimation(OpacityProperty, fade);
     }
 
-    // --- Тёмный заголовок окна в цвет темы (Windows 10 20H1+ / Windows 11) ---
+    // --- Окно: тёмный режим и скруглённые углы Windows 11 (на Windows 10 игнорируется) ---
 
     private const int DwmUseImmersiveDarkMode = 20;
-    private const int DwmCaptionColor = 35;
+    private const int DwmWindowCornerPreference = 33;
+    private const int DwmCornerRound = 2;
 
     [DllImport("dwmapi.dll")]
     private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
 
-    private void ApplyDarkTitleBar()
+    private void ApplyWindowStyle()
     {
         var hwnd = new WindowInteropHelper(this).Handle;
         var on = 1;
         DwmSetWindowAttribute(hwnd, DwmUseImmersiveDarkMode, ref on, sizeof(int));
-        var caption = 0x00201C1C; // COLORREF 0x00BBGGRR → #1C1C20
-        DwmSetWindowAttribute(hwnd, DwmCaptionColor, ref caption, sizeof(int)); // только Windows 11, на 10 игнорируется
+        var round = DwmCornerRound;
+        DwmSetWindowAttribute(hwnd, DwmWindowCornerPreference, ref round, sizeof(int));
     }
 }
+

@@ -3,68 +3,85 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:views="clr-namespace:GLauncher.Views"
         xmlns:themes="clr-namespace:GLauncher.Themes"
-        Title="gLauncher" Icon="Assets/gLauncher.ico" Width="1080" Height="740" MinWidth="820" MinHeight="560"
-        WindowStartupLocation="CenterScreen"
-        Background="{DynamicResource Texture.Background}"
+        Title="gLauncher" Icon="Assets/gLauncher.ico" Width="1180" Height="780" MinWidth="900" MinHeight="600"
+        WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize"
+        Background="{DynamicResource Brush.WindowBase}"
         Foreground="{DynamicResource Brush.Text}"
-        FontFamily="Segoe UI" FontSize="13"
-        UseLayoutRounding="True" SnapsToDevicePixels="True">
-    <Grid>
-    <DockPanel>
-        <!-- Шапка: полоса дёрна с травой и название -->
-        <Grid DockPanel.Dock="Top" Height="72">
-            <Border Background="{DynamicResource Texture.Header}" />
-            <Border Background="#59000000" Margin="0,18,0,0" />
-            <Border BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="0,0,0,3" />
-            <DockPanel Margin="18,18,18,6">
-                <TextBlock DockPanel.Dock="Right" Text="{Binding CreditedPerson.Greeting}" VerticalAlignment="Center" Margin="24,0,0,0"
-                           FontWeight="Bold" Foreground="{DynamicResource Brush.TextGold}" Effect="{StaticResource Effect.TextShadow}"
-                           Visibility="{Binding IsCredited, Converter={StaticResource BoolToVisibility}}" />
-                <StackPanel DockPanel.Dock="Right" VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <TextBlock HorizontalAlignment="Right" Foreground="{DynamicResource Brush.TextDim}" FontSize="11"
-                               Effect="{StaticResource Effect.TextShadow}">
-                        <Run Text="версия" />
-                        <Run Text="{Binding Updates.CurrentVersion, Mode=OneWay}" />
+        FontFamily="{StaticResource Font.Text}" FontSize="13"
+        UseLayoutRounding="True" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display">
+    <!-- Своя рамка окна: заголовок рисует лаунчер, Windows отвечает за перетаскивание, привязку и изменение размера -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="44" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Grid x:Name="Root">
+        <!-- ===== Фон: градиент темы, два «сияния» акцентных цветов, изометрическая сетка, частицы ===== -->
+        <Border Background="{DynamicResource Brush.WindowBase}" />
+        <Border Background="{DynamicResource Brush.Aurora1}" />
+        <Border Background="{DynamicResource Brush.Aurora2}" />
+        <Border Background="{DynamicResource Brush.Pattern}" />
+        <themes:ParticleField IsActive="{Binding SettingsPage.AnimatedBackground}" />
+
+        <DockPanel>
+            <!-- ===== Заголовок окна: иконка gLauncher, название, версия, приветствие, кнопки окна ===== -->
+            <Grid DockPanel.Dock="Top" Height="44">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
+                    <Image Source="Assets/gLauncher.ico" Width="24" Height="24" RenderOptions.BitmapScalingMode="HighQuality" />
+                    <TextBlock x:Name="Logo" Background="Transparent" Margin="10,0,0,1" VerticalAlignment="Center"
+                               FontFamily="{StaticResource Font.Display}" FontSize="17" WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Run Text="g" Foreground="{DynamicResource Brush.Accent}" /><Run Text="Launcher" />
                     </TextBlock>
+                    <Border Style="{StaticResource Chip}" Margin="10,0,0,0" VerticalAlignment="Center">
+                        <TextBlock FontSize="11" Foreground="{DynamicResource Brush.TextDim}">
+                            <Run Text="v" /><Run Text="{Binding Updates.CurrentVersion, Mode=OneWay}" />
+                        </TextBlock>
+                    </Border>
                 </StackPanel>
-                <TextBlock x:Name="Logo" Background="Transparent" VerticalAlignment="Center" FontSize="30" FontWeight="Black"
-                           Effect="{StaticResource Effect.TextShadow}">
-                    <Run Text="g" Foreground="{DynamicResource Brush.AccentLight}" /><Run Text="Launcher" />
-                </TextBlock>
-            </DockPanel>
-        </Grid>
 
-        <!-- Баннер обновления: виден, когда на GitHub есть версия новее -->
-        <Border DockPanel.Dock="Top" Background="{DynamicResource Brush.Banner}" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="0,0,0,2" Padding="12,8"
-                Visibility="{Binding Updates.Available, Converter={StaticResource NotNullToVisibility}}">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                    <Button Content="Обновить" Command="{Binding Updates.InstallCommand}" Background="{DynamicResource Brush.Accent}" Margin="6,0,0,0" />
-                    <Button Content="Что нового" Command="{Binding Updates.OpenReleasePageCommand}" Margin="6,0,0,0" />
-                    <Button Content="Позже" Command="{Binding Updates.DismissCommand}" Margin="6,0,0,0" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBlock Text="{Binding CreditedPerson.Greeting}" VerticalAlignment="Center" Margin="0,0,18,0"
+                               FontFamily="{StaticResource Font.Display}" Foreground="{DynamicResource Brush.TextGold}"
+                               Visibility="{Binding IsCredited, Converter={StaticResource BoolToVisibility}}" />
+                    <Button x:Name="MinimizeButton" Style="{StaticResource CaptionButton}" Content="&#xE921;" ToolTip="Свернуть"
+                            WindowChrome.IsHitTestVisibleInChrome="True" />
+                    <Button x:Name="MaximizeButton" Style="{StaticResource CaptionButton}" Content="&#xE922;" ToolTip="Развернуть"
+                            WindowChrome.IsHitTestVisibleInChrome="True" />
+                    <Button x:Name="CloseButton" Style="{StaticResource CaptionCloseButton}" Content="&#xE8BB;" ToolTip="Закрыть"
+                            WindowChrome.IsHitTestVisibleInChrome="True" />
                 </StackPanel>
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Updates.AvailableText}" FontWeight="SemiBold" Effect="{StaticResource Effect.TextShadow}" />
-                    <ProgressBar Margin="0,4,12,0" Value="{Binding Updates.ProgressValue}"
-                                 Visibility="{Binding Updates.IsBusy, Converter={StaticResource BoolToVisibility}}" />
-                </StackPanel>
-            </DockPanel>
-        </Border>
+            </Grid>
 
+            <!-- ===== Баннер обновления: виден, когда на GitHub есть версия новее ===== -->
+            <Border DockPanel.Dock="Top" Margin="12,0,12,12" Padding="16,10" CornerRadius="14"
+                    Background="{DynamicResource Brush.Banner}" BorderBrush="{DynamicResource Brush.OutlineStrong}" BorderThickness="1"
+                    Visibility="{Binding Updates.Available, Converter={StaticResource NotNullToVisibility}}">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button Content="Обновить" Command="{Binding Updates.InstallCommand}" Style="{StaticResource AccentButton}" Margin="6,0,0,0" />
+                        <Button Content="Что нового" Command="{Binding Updates.OpenReleasePageCommand}" Margin="6,0,0,0" />
+                        <Button Content="Позже" Command="{Binding Updates.DismissCommand}" Margin="6,0,0,0" />
+                    </StackPanel>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Updates.AvailableText}" FontWeight="SemiBold" />
+                        <ProgressBar Margin="0,6,12,0" Value="{Binding Updates.ProgressValue}"
+                                     Visibility="{Binding Updates.IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
         <!-- Боковая панель как в официальном лаунчере: игрок сверху, игры, «Настройки» внизу.
              У каждой игры своя страница с вкладками (Играть, Установки, Скины, Список изменений…). -->
-        <TabControl Style="{StaticResource SidebarTabControl}">
-            <TabControl.Resources>
-                <Style TargetType="TabItem" BasedOn="{StaticResource NavItem}" />
-            </TabControl.Resources>
+        <!-- ItemContainerStyle, а не неявный стиль: иначе вложенные вкладки страниц тоже станут пунктами меню -->
+        <TabControl Style="{StaticResource SidebarTabControl}" ItemContainerStyle="{StaticResource NavItem}">
 
             <!-- Игрок -->
             <TabItem>
                 <TabItem.Header>
                     <DockPanel>
-                        <Border DockPanel.Dock="Left" Width="34" Height="34" Margin="0,0,10,0" BorderBrush="{DynamicResource Brush.Outline}"
-                                BorderThickness="2" Background="{DynamicResource Brush.Face}">
-                            <Image Source="{Binding Accounts.ActiveFace}" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                        <Border DockPanel.Dock="Left" Width="40" Height="40" Margin="0,0,12,0" CornerRadius="12"
+                                BorderBrush="{DynamicResource Brush.OutlineStrong}" BorderThickness="1.5" Background="{DynamicResource Brush.Face}">
+                            <Image Source="{Binding Accounts.ActiveFace}" RenderOptions.BitmapScalingMode="NearestNeighbor" Margin="1">
+                                <Image.Clip><RectangleGeometry Rect="0,0,35,35" RadiusX="10" RadiusY="10" /></Image.Clip>
+                            </Image>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="{Binding Accounts.Selected.DisplayName, FallbackValue='Нет аккаунта', TargetNullValue='Нет аккаунта'}"
@@ -97,10 +114,10 @@
             <TabItem IsSelected="True">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Border Width="22" Height="22" Margin="0,0,10,0" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="1"
+                        <Border Width="26" Height="26" Margin="0,0,12,0" CornerRadius="7" ClipToBounds="True"
                                 Background="{themes:PixelTexture Kind=GrassBlock, TileSize=20}">
                             <!-- Официальная иконка (каталог Microsoft Store); пока не скачана — видна пиксельная -->
-                            <Image Source="{Binding JavaIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
+                            <Image Source="{Binding JavaIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"><Image.Clip><RectangleGeometry Rect="0,0,26,26" RadiusX="7" RadiusY="7" /></Image.Clip></Image>
                         </Border>
                         <TextBlock Text="Java Edition" VerticalAlignment="Center" />
                     </StackPanel>
@@ -119,10 +136,10 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Border Width="22" Height="22" Margin="0,0,10,0" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="1"
+                        <Border Width="26" Height="26" Margin="0,0,12,0" CornerRadius="7" ClipToBounds="True"
                                 Background="{themes:PixelTexture Kind=Stone, TileSize=20}">
                             <!-- Официальная иконка (каталог Microsoft Store); пока не скачана — видна пиксельная -->
-                            <Image Source="{Binding BedrockIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
+                            <Image Source="{Binding BedrockIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"><Image.Clip><RectangleGeometry Rect="0,0,26,26" RadiusX="7" RadiusY="7" /></Image.Clip></Image>
                         </Border>
                         <TextBlock Text="Bedrock Edition" VerticalAlignment="Center" />
                     </StackPanel>
@@ -137,10 +154,10 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Border Width="22" Height="22" Margin="0,0,10,0" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="1"
+                        <Border Width="26" Height="26" Margin="0,0,12,0" CornerRadius="7" ClipToBounds="True"
                                 Background="{themes:PixelTexture Kind=Planks, TileSize=20}">
                             <!-- Официальная иконка (каталог Microsoft Store); пока не скачана — видна пиксельная -->
-                            <Image Source="{Binding DungeonsIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
+                            <Image Source="{Binding DungeonsIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"><Image.Clip><RectangleGeometry Rect="0,0,26,26" RadiusX="7" RadiusY="7" /></Image.Clip></Image>
                         </Border>
                         <TextBlock Text="Minecraft Dungeons" VerticalAlignment="Center" />
                     </StackPanel>
@@ -155,10 +172,10 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Border Width="22" Height="22" Margin="0,0,10,0" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="1"
+                        <Border Width="26" Height="26" Margin="0,0,12,0" CornerRadius="7" ClipToBounds="True"
                                 Background="{themes:PixelTexture Kind=DarkPlanks, TileSize=20}">
                             <!-- Официальная иконка (каталог Microsoft Store); пока не скачана — видна пиксельная -->
-                            <Image Source="{Binding DungeonsIIIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
+                            <Image Source="{Binding DungeonsIIIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"><Image.Clip><RectangleGeometry Rect="0,0,26,26" RadiusX="7" RadiusY="7" /></Image.Clip></Image>
                         </Border>
                         <TextBlock Text="Minecraft Dungeons II" VerticalAlignment="Center" />
                     </StackPanel>
@@ -172,10 +189,10 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Border Width="22" Height="22" Margin="0,0,10,0" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="1"
+                        <Border Width="26" Height="26" Margin="0,0,12,0" CornerRadius="7" ClipToBounds="True"
                                 Background="{themes:PixelTexture Kind=MossyStone, TileSize=20}">
                             <!-- Официальная иконка (каталог Microsoft Store); пока не скачана — видна пиксельная -->
-                            <Image Source="{Binding LegendsIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
+                            <Image Source="{Binding LegendsIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"><Image.Clip><RectangleGeometry Rect="0,0,26,26" RadiusX="7" RadiusY="7" /></Image.Clip></Image>
                         </Border>
                         <TextBlock Text="Minecraft Legends" VerticalAlignment="Center" />
                     </StackPanel>
@@ -190,22 +207,17 @@
             <TabItem DockPanel.Dock="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="⚙" FontSize="18" Width="22" TextAlignment="Center" Margin="0,-2,10,0" VerticalAlignment="Center" />
+                        <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="17" Width="26" TextAlignment="Center" Margin="0,0,12,0" VerticalAlignment="Center" />
                         <TextBlock Text="Настройки" VerticalAlignment="Center" />
                     </StackPanel>
                 </TabItem.Header>
                 <views:SettingsView DataContext="{Binding SettingsPage}" />
             </TabItem>
-        </TabControl>    </DockPanel>
+        </TabControl>
+        </DockPanel>
 
-    <!-- Слой для пасхалки (падающие блоки) — поверх всего, клики проходят насквозь -->
-    <Canvas x:Name="FxLayer" IsHitTestVisible="False" ClipToBounds="True" />
+        <!-- Слой для пасхалки (падающие блоки) — поверх всего, клики проходят насквозь -->
+        <Canvas x:Name="FxLayer" IsHitTestVisible="False" ClipToBounds="True" />
     </Grid>
 </Window>
-
-
-
-
-
-
 

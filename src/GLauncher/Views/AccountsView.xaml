@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <DockPanel Margin="6">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
-            <Button Content="Добавить аккаунт Microsoft" Command="{Binding AddCommand}" Background="{DynamicResource Brush.Accent}" Margin="0,0,8,0" />
+            <Button Content="Добавить аккаунт Microsoft" Command="{Binding AddCommand}" Style="{StaticResource AccentButton}" Margin="0,0,8,0" />
             <Button Content="Проверить лицензии" Command="{Binding RefreshCommand}" Margin="0,0,8,0" />
             <Button Content="Удалить" Command="{Binding RemoveCommand}" Style="{StaticResource DangerButton}" />
         </StackPanel>
@@ -47,4 +47,5 @@
         </ListBox>
     </DockPanel>
 </UserControl>
+
 

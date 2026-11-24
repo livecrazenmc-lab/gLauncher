@@ -1,4 +1,4 @@
-<UserControl x:Class="GLauncher.Views.PatchNotesView"
+﻿<UserControl x:Class="GLauncher.Views.PatchNotesView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:GLauncher.Controls">
@@ -28,10 +28,11 @@
             </ListBox>
         </DockPanel>
 
-        <Border Grid.Column="1" Background="{DynamicResource Brush.PanelDeep}" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="2">
+        <Border Grid.Column="1" Style="{StaticResource Card}">
             <controls:HtmlText Html="{Binding Body}" />
         </Border>
 
         <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Status}" Style="{StaticResource HintText}" Margin="0,6,0,0" />
     </Grid>
 </UserControl>
+

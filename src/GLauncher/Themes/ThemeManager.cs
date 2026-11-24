@@ -10,56 +10,62 @@ public enum ThemeId
     Legends, Dungeons, Nether, End,
 }
 
+/// <summary>Анимированные частицы на фоне окна — «характер» темы.</summary>
+public enum ParticleKind { None, Snow, Leaves, Petals, Fireflies, Embers, Sparkles, Motes }
+
 /// <summary>
-/// Тема = палитра + текстуры шапки и фона. Стили контролов (Theme.xaml) общие для всех тем
-/// и берут цвета через DynamicResource, поэтому тема переключается на лету.
+/// Тема стиля «Изометрия»: тёмный градиент фона, пара акцентных цветов (кнопки, свечения, сетка),
+/// цвет заголовков и частицы. Стили контролов (Theme.xaml) общие и берут цвета через DynamicResource,
+/// поэтому тема переключается на лету.
 /// </summary>
 public sealed record ThemeDefinition(
     ThemeId Id,
     string Title,
-    PixelTextureKind Header,
-    PixelTextureKind Background,
-    Color Accent,        // кнопки «Играть», «Найти», выделение
-    Color AccentLight,   // фокус, галочки, буква «g» в логотипе
-    Color Headline,      // заголовки разделов, выбранная вкладка
-    Color XpLight,       // шкала прогресса
-    Color XpDark,
-    Color TooltipBorder,
-    Color Face,          // обычные кнопки
-    Color Danger);
+    Color BaseTop,        // фон окна сверху
+    Color BaseBottom,     // фон окна снизу
+    Color Accent,         // основной акцент: кнопки, выделение, сетка, свечение
+    Color Accent2,        // второй акцент: конец градиентов, второе свечение
+    Color Headline,       // заголовки разделов
+    ParticleKind Particles,
+    Color[] ParticleColors);
 
 public static class ThemeManager
 {
     private static ResourceDictionary? _current;
 
+    /// <summary>Текущая применённая тема (для слоя частиц).</summary>
+    public static ThemeDefinition Current { get; private set; } = null!;
+
+    public static event Action? Changed;
+
     public static IReadOnlyList<ThemeDefinition> Themes { get; } =
     [
-        new(ThemeId.Blocks, "Блоки", PixelTextureKind.GrassBlock, PixelTextureKind.Stone,
-            C("#4E8C2A"), C("#8BD14B"), C("#F2C94C"), C("#8BE34F"), C("#56A82B"), C("#5A2FA8"), C("#5A5A62"), C("#8E3229")),
-        new(ThemeId.Spring, "Весна", PixelTextureKind.FlowerGrass, PixelTextureKind.MossyStone,
-            C("#4F9E45"), C("#A8E07A"), C("#F7A8C8"), C("#A8E07A"), C("#5AA845"), C("#C2569A"), C("#58605A"), C("#8E3240")),
-        new(ThemeId.Summer, "Лето", PixelTextureKind.SunnyGrass, PixelTextureKind.Planks,
-            C("#2E8FCC"), C("#7FD3FF"), C("#FFD45C"), C("#FFE066"), C("#E0A020"), C("#2E8FCC"), C("#5E5A54"), C("#A33A28")),
-        new(ThemeId.Autumn, "Осень", PixelTextureKind.AutumnGrass, PixelTextureKind.DarkPlanks,
-            C("#B8561A"), C("#F2A03D"), C("#F2C94C"), C("#F2A03D"), C("#B5531A"), C("#8E3B1A"), C("#5E5650"), C("#7E2A1E")),
-        new(ThemeId.Winter, "Зима", PixelTextureKind.SnowyGrass, PixelTextureKind.FrozenStone,
-            C("#3A78BE"), C("#9FD4FF"), C("#E2F0FF"), C("#BFE4FF"), C("#4E8DD6"), C("#3A78BE"), C("#56606E"), C("#8E3245")),
-        new(ThemeId.NewYear, "Новый год", PixelTextureKind.GarlandGrass, PixelTextureKind.Deepslate,
-            C("#B3262E"), C("#FF7A7A"), C("#F2C94C"), C("#F05454"), C("#A81E27"), C("#2E8B57"), C("#555A5E"), C("#6E1A20")),
-        new(ThemeId.Easter, "Пасха", PixelTextureKind.PastelGrass, PixelTextureKind.SpeckledStone,
-            C("#8A5FC4"), C("#D6B8FF"), C("#FFE08A"), C("#F7A8C8"), C("#C2569A"), C("#8A5FC4"), C("#5C5866"), C("#8E3250")),
-        new(ThemeId.Halloween, "Хэллоуин", PixelTextureKind.CursedGrass, PixelTextureKind.DarkBricks,
-            C("#C9591A"), C("#FF9A3D"), C("#C58BFF"), C("#FF9A3D"), C("#B44C0F"), C("#7B3FB5"), C("#4A4250"), C("#6E1F3A")),
+        new(ThemeId.Blocks, "Изометрия", C("#0C1016"), C("#121A24"), C("#4ADE80"), C("#22D3EE"), C("#A7F3D0"),
+            ParticleKind.Motes, [C("#4ADE80"), C("#22D3EE")]),
+        new(ThemeId.Spring, "Весна", C("#0E1412"), C("#17211C"), C("#F472B6"), C("#86EFAC"), C("#FBCFE8"),
+            ParticleKind.Petals, [C("#F9A8D4"), C("#FBCFE8"), C("#FFFFFF")]),
+        new(ThemeId.Summer, "Лето", C("#0B1119"), C("#11202C"), C("#FBBF24"), C("#38BDF8"), C("#FDE68A"),
+            ParticleKind.Fireflies, [C("#FDE047"), C("#FEF08A")]),
+        new(ThemeId.Autumn, "Осень", C("#140F0C"), C("#1F1712"), C("#FB923C"), C("#F43F5E"), C("#FED7AA"),
+            ParticleKind.Leaves, [C("#FB923C"), C("#F97316"), C("#DC2626"), C("#FACC15")]),
+        new(ThemeId.Winter, "Зима", C("#0A1020"), C("#121C30"), C("#93C5FD"), C("#E0F2FE"), C("#DBEAFE"),
+            ParticleKind.Snow, [C("#FFFFFF"), C("#E0F2FE")]),
+        new(ThemeId.NewYear, "Новый год", C("#0E0E1A"), C("#1B1428"), C("#F43F5E"), C("#FBBF24"), C("#FDE68A"),
+            ParticleKind.Snow, [C("#FFFFFF"), C("#FDE68A"), C("#FDA4AF"), C("#86EFAC")]),
+        new(ThemeId.Easter, "Пасха", C("#13111C"), C("#1C1729"), C("#C4B5FD"), C("#F9A8D4"), C("#EDE9FE"),
+            ParticleKind.Petals, [C("#C4B5FD"), C("#F9A8D4"), C("#FDE68A"), C("#A7F3D0")]),
+        new(ThemeId.Halloween, "Хэллоуин", C("#110C13"), C("#1C1220"), C("#FB923C"), C("#A855F7"), C("#FED7AA"),
+            ParticleKind.Embers, [C("#FB923C"), C("#F97316"), C("#C084FC")]),
 
         // ---- Эксклюзивные темы (благодарности) ----
-        new(ThemeId.Legends, "★ Legends", PixelTextureKind.LegendsGrass, PixelTextureKind.LegendsStone,
-            C("#1F9E86"), C("#5FE3C4"), C("#FFD66A"), C("#7FE8FF"), C("#2F9ED0"), C("#E0A030"), C("#4E5E66"), C("#9A3A2E")),
-        new(ThemeId.Dungeons, "★ Dungeons", PixelTextureKind.DungeonMoss, PixelTextureKind.Deepslate,
-            C("#2E9E4E"), C("#4FE07A"), C("#FFB648"), C("#4FE07A"), C("#1F7A3A"), C("#C97A1E"), C("#4E4E54"), C("#8A2A2A")),
-        new(ThemeId.Nether, "★ Нижний мир", PixelTextureKind.CrimsonNylium, PixelTextureKind.Netherrack,
-            C("#B0222E"), C("#FF6A4A"), C("#FFC94A"), C("#FF8A3A"), C("#B03A14"), C("#F2A02A"), C("#5A3A3C"), C("#6E0F18")),
-        new(ThemeId.End, "★ Энд", PixelTextureKind.EndStoneTop, PixelTextureKind.Obsidian,
-            C("#7E3FC0"), C("#C08BFF"), C("#E8E6A8"), C("#D6A8FF"), C("#7E3FC0"), C("#C08BFF"), C("#4A4058"), C("#8A2A5A")),
+        new(ThemeId.Legends, "★ Legends", C("#091515"), C("#0F2224"), C("#2DD4BF"), C("#FCD34D"), C("#CCFBF1"),
+            ParticleKind.Sparkles, [C("#5EEAD4"), C("#FDE68A"), C("#FFFFFF")]),
+        new(ThemeId.Dungeons, "★ Dungeons", C("#0D110E"), C("#151C16"), C("#34D399"), C("#F59E0B"), C("#D1FAE5"),
+            ParticleKind.Embers, [C("#34D399"), C("#FBBF24")]),
+        new(ThemeId.Nether, "★ Нижний мир", C("#16090B"), C("#25100F"), C("#F43F5E"), C("#F97316"), C("#FECACA"),
+            ParticleKind.Embers, [C("#F97316"), C("#FB7185"), C("#FDE047")]),
+        new(ThemeId.End, "★ Энд", C("#0D0915"), C("#180F25"), C("#C084FC"), C("#FDE68A"), C("#F3E8FF"),
+            ParticleKind.Motes, [C("#C084FC"), C("#E9D5FF"), C("#FDE68A")]),
     ];
 
     /// <summary>Эксклюзивные темы видны и применяются только людям из благодарностей.</summary>
@@ -78,7 +84,7 @@ public static class ThemeManager
 
     public static ThemeDefinition Get(ThemeId id) => Themes.FirstOrDefault(t => t.Id == id) ?? Themes[0];
 
-    /// <summary>Тема, которая реально применится: для «Авто» — по текущей дате.</summary>
+    /// <summary>Тема, которая реально применится: для «Сезонной» (Auto) — по текущей дате.</summary>
     public static ThemeDefinition Resolve(ThemeId id, DateTime? today = null) =>
         Get(id == ThemeId.Auto ? ForDate(today ?? DateTime.Today) : id);
 
@@ -114,7 +120,7 @@ public static class ThemeManager
         return new DateTime(year, month, day).AddDays(13);
     }
 
-    /// <summary>Подставляет палитру и текстуры темы в ресурсы приложения. Окна перекрашиваются сразу.</summary>
+    /// <summary>Подставляет палитру темы в ресурсы приложения. Окна перекрашиваются сразу.</summary>
     public static void Apply(ThemeDefinition theme)
     {
         var dict = Build(theme);
@@ -124,63 +130,121 @@ public static class ThemeManager
         else
             merged.Insert(0, dict);
         _current = dict;
+        Current = theme;
+        Changed?.Invoke();
     }
 
     private static ResourceDictionary Build(ThemeDefinition t)
     {
         var d = new ResourceDictionary();
+        var surface = Mix(t.BaseBottom, Colors.White, 0.06);
 
-        // Общие для всех тем
-        d["Brush.Text"] = B("#F0F0F0");
-        d["Brush.TextDim"] = B("#A9A9B2");
-        d["Brush.Warning"] = B("#FF7A6B");
-        d["Brush.Outline"] = B("#000000");
-        d["Brush.FaceDisabled"] = B("#2F2F34");
-        d["Brush.Field"] = B("#101013");
-        d["Brush.FieldBorder"] = B("#5C5C66");
-        d["Brush.FieldBorderHover"] = B("#8A8A96");
-        d["Brush.Panel"] = B("#D91C1C20");
-        d["Brush.PanelDeep"] = B("#E6101013");
-        d["Brush.Hover"] = B("#1FFFFFFF");
-        d["Brush.BevelLight"] = B("#55FFFFFF");
-        d["Brush.BevelDark"] = B("#66000000");
+        // --- Цвета (для эффектов свечения) ---
+        d["Color.Accent"] = t.Accent;
+        d["Color.Accent2"] = t.Accent2;
+        d["Color.Glow"] = t.Accent;
 
-        // Цвета темы
-        d["Brush.Face"] = new SolidColorBrush(t.Face).Frozen();
-        d["Brush.Accent"] = new SolidColorBrush(t.Accent).Frozen();
-        d["Brush.AccentLight"] = new SolidColorBrush(t.AccentLight).Frozen();
+        // --- Текст ---
+        d["Brush.Text"] = B("#F1F5F9");
+        d["Brush.TextDim"] = B("#94A3B8");
         d["Brush.TextGold"] = new SolidColorBrush(t.Headline).Frozen();
-        d["Brush.Danger"] = new SolidColorBrush(t.Danger).Frozen();
-        d["Brush.TooltipBorder"] = new SolidColorBrush(t.TooltipBorder).Frozen();
-        d["Brush.Selection"] = new SolidColorBrush(Shade(t.Accent, 0.75, 0xB0)).Frozen();
-        d["Brush.Banner"] = new SolidColorBrush(Shade(t.Accent, 0.35, 0xF2)).Frozen();
-        d["Brush.Xp"] = XpBrush(t.XpLight, t.XpDark);
+        d["Brush.OnAccent"] = B("#0B1016");
+        d["Brush.Warning"] = B("#FB7185");
 
-        // Текстуры
-        d["Texture.Background"] = PixelTextures.CreateBrush(t.Background, 64);
-        d["Texture.Header"] = PixelTextures.CreateBrush(t.Header, 72);
+        // --- Поверхности: полупрозрачное «стекло» поверх сияния фона ---
+        d["Brush.Panel"] = new SolidColorBrush(WithAlpha(surface, 0xB8)).Frozen();
+        d["Brush.PanelDeep"] = new SolidColorBrush(WithAlpha(Mix(t.BaseTop, Colors.White, 0.04), 0xCC)).Frozen();
+        d["Brush.Popup"] = new SolidColorBrush(Mix(t.BaseBottom, Colors.White, 0.09)).Frozen();
+        d["Brush.Outline"] = B("#1CFFFFFF");
+        d["Brush.OutlineStrong"] = new SolidColorBrush(WithAlpha(t.Accent, 0x8C)).Frozen();
+        d["Brush.Face"] = B("#17FFFFFF");
+        d["Brush.FaceHover"] = B("#26FFFFFF");
+        d["Brush.FaceDisabled"] = B("#0AFFFFFF");
+        d["Brush.Field"] = B("#38000000");
+        d["Brush.FieldBorder"] = B("#1FFFFFFF");
+        d["Brush.FieldBorderHover"] = B("#40FFFFFF");
+        d["Brush.Hover"] = B("#10FFFFFF");
+        d["Brush.BevelLight"] = Brushes.Transparent;
+        d["Brush.BevelDark"] = Brushes.Transparent;
+
+        // --- Акценты ---
+        d["Brush.Accent"] = new SolidColorBrush(t.Accent).Frozen();
+        d["Brush.AccentLight"] = new SolidColorBrush(Mix(t.Accent, Colors.White, 0.35)).Frozen();
+        d["Brush.Accent2"] = new SolidColorBrush(t.Accent2).Frozen();
+        d["Brush.AccentGradient"] = Gradient(t.Accent, t.Accent2, horizontal: true);
+        d["Brush.Selection"] = new SolidColorBrush(WithAlpha(t.Accent, 0x2E)).Frozen();
+        d["Brush.Danger"] = new SolidColorBrush(C("#E11D48")).Frozen();
+        d["Brush.TooltipBorder"] = new SolidColorBrush(WithAlpha(t.Accent, 0x80)).Frozen();
+        d["Brush.Banner"] = Gradient(WithAlpha(t.Accent, 0x3A), WithAlpha(t.Accent2, 0x26), horizontal: true);
+        d["Brush.Xp"] = Gradient(t.Accent, t.Accent2, horizontal: true);
+
+        // --- Фон окна: градиент + «северное сияние» + изометрическая сетка ---
+        d["Brush.WindowBase"] = Gradient(t.BaseTop, t.BaseBottom, horizontal: false);
+        d["Brush.Aurora1"] = Aurora(t.Accent, new Point(0.12, 0.0));
+        d["Brush.Aurora2"] = Aurora(t.Accent2, new Point(0.95, 1.0));
+        d["Brush.Pattern"] = IsoPattern(WithAlpha(t.Accent, 0x14));
+
+        // Старые ключи: фоны обложек и шапки — теперь градиенты стиля
+        d["Texture.Background"] = Gradient(t.BaseTop, t.BaseBottom, horizontal: false);
+        d["Texture.Header"] = Gradient(t.Accent, t.Accent2, horizontal: true);
         return d;
     }
 
-    /// <summary>Шкала прогресса в виде сегментов: светлая верхняя половина, тёмная нижняя, тёмный разделитель.</summary>
-    private static DrawingBrush XpBrush(Color light, Color dark)
+    /// <summary>Изометрическая сетка из ромбов — как грани куба из иконки.</summary>
+    private static DrawingBrush IsoPattern(Color line)
     {
+        var pen = new Pen(new SolidColorBrush(line), 1);
+        var g = new StreamGeometry();
+        using (var c = g.Open())
+        {
+            c.BeginFigure(new Point(0, 16), false, true);
+            c.PolyLineTo([new Point(28, 0), new Point(56, 16), new Point(28, 32)], true, true);
+        }
         var group = new DrawingGroup();
-        group.Children.Add(new GeometryDrawing(new SolidColorBrush(light), null, new RectangleGeometry(new Rect(0, 0, 12, 10))));
-        group.Children.Add(new GeometryDrawing(new SolidColorBrush(dark), null, new RectangleGeometry(new Rect(0, 5, 12, 5))));
-        group.Children.Add(new GeometryDrawing(new SolidColorBrush(Shade(dark, 0.35, 0xFF)), null, new RectangleGeometry(new Rect(11, 0, 1, 10))));
+        group.Children.Add(new GeometryDrawing(Brushes.Transparent, null, new RectangleGeometry(new Rect(0, 0, 56, 32))));
+        group.Children.Add(new GeometryDrawing(null, pen, g));
+        group.Children.Add(new GeometryDrawing(new SolidColorBrush(WithAlpha(line, (byte)Math.Min(255, line.A * 3))), null,
+            new EllipseGeometry(new Point(28, 0), 1.3, 1.3)));
         var brush = new DrawingBrush(group)
         {
             TileMode = TileMode.Tile,
-            Viewport = new Rect(0, 0, 12, 10),
+            Viewport = new Rect(0, 0, 56, 32),
             ViewportUnits = BrushMappingMode.Absolute,
+            Stretch = Stretch.None,
         };
         brush.Freeze();
         return brush;
     }
 
-    private static Color Shade(Color c, double k, byte alpha) =>
-        Color.FromArgb(alpha, (byte)(c.R * k), (byte)(c.G * k), (byte)(c.B * k));
+    private static RadialGradientBrush Aurora(Color color, Point center)
+    {
+        var brush = new RadialGradientBrush
+        {
+            Center = center, GradientOrigin = center, RadiusX = 0.75, RadiusY = 0.9,
+            GradientStops =
+            {
+                new GradientStop(WithAlpha(color, 0x30), 0),
+                new GradientStop(WithAlpha(color, 0x0C), 0.55),
+                new GradientStop(WithAlpha(color, 0x00), 1),
+            },
+        };
+        brush.Freeze();
+        return brush;
+    }
+
+    private static LinearGradientBrush Gradient(Color a, Color b, bool horizontal)
+    {
+        var brush = horizontal
+            ? new LinearGradientBrush(a, b, new Point(0, 0.5), new Point(1, 0.5))
+            : new LinearGradientBrush(a, b, 90);
+        brush.Freeze();
+        return brush;
+    }
+
+    private static Color Mix(Color a, Color b, double k) => Color.FromArgb(
+        (byte)(a.A + (b.A - a.A) * k), (byte)(a.R + (b.R - a.R) * k), (byte)(a.G + (b.G - a.G) * k), (byte)(a.B + (b.B - a.B) * k));
+
+    private static Color WithAlpha(Color c, byte alpha) => Color.FromArgb(alpha, c.R, c.G, c.B);
 
     private static Color C(string hex) => (Color)ColorConverter.ConvertFromString(hex);
 

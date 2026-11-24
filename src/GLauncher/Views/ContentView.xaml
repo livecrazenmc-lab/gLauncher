@@ -21,7 +21,7 @@
             <!-- Поиск на Modrinth -->
             <DockPanel Grid.Column="0">
                 <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
-                    <Button DockPanel.Dock="Right" Content="Найти" Command="{Binding SearchCommand}" IsDefault="True" Background="{DynamicResource Brush.Accent}" Margin="6,0,0,0" />
+                    <Button DockPanel.Dock="Right" Content="Найти" Command="{Binding SearchCommand}" IsDefault="True" Style="{StaticResource AccentButton}" Margin="6,0,0,0" />
                     <TextBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="Поиск на Modrinth. Пусто — самые популярные." />
                 </DockPanel>
@@ -87,5 +87,6 @@
         </Grid>
     </DockPanel>
 </UserControl>
+
 
 

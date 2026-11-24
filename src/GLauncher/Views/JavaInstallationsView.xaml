@@ -42,7 +42,7 @@
         <!-- Редактор профиля -->
         <DockPanel Grid.Column="1" Grid.Row="0">
             <TextBlock DockPanel.Dock="Top" Text="Настройки профиля" Style="{StaticResource SectionTitle}" Margin="2,0,0,6" />
-            <Border Background="{DynamicResource Brush.PanelDeep}" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="2">
+            <Border Style="{StaticResource Card}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -125,5 +125,6 @@
         </DockPanel>
     </Grid>
 </UserControl>
+
 
 

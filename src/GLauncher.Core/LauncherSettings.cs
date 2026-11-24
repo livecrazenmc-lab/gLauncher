@@ -21,6 +21,9 @@ public sealed class LauncherSettings
     /// <summary>Тема оформления: Auto (по дате), Blocks, Spring, Summer, Autumn, Winter, NewYear, Easter, Halloween.</summary>
     public string Theme { get; set; } = "Auto";
 
+    /// <summary>Анимированные частицы на фоне (снег, листья и т. п.).</summary>
+    public bool AnimatedBackground { get; set; } = true;
+
     /// <summary>Какой Bedrock запускать: обычную версию или Minecraft Preview.</summary>
     public bool BedrockPreview { get; set; }
 

@@ -1,4 +1,4 @@
-<UserControl x:Class="GLauncher.Views.SkinsView"
+﻿<UserControl x:Class="GLauncher.Views.SkinsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:skins="clr-namespace:GLauncher.Skins"
@@ -59,7 +59,7 @@
                 <Button Content="НАДЕТЬ СКИН" Command="{Binding ApplyCommand}" Style="{StaticResource PlayButton}"
                         HorizontalAlignment="Stretch" Margin="0,8,0,0" />
             </StackPanel>
-            <Border Background="{DynamicResource Brush.PanelDeep}" BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="2">
+            <Border Style="{StaticResource Card}">
                 <Grid>
                     <skins:SkinViewer SkinPath="{Binding PreviewPath}" Slim="{Binding PreviewSlim}" CapePng="{Binding PreviewCape}" />
                     <TextBlock Text="Тяните мышью, чтобы повернуть · двойной щелчок — исходный вид" Style="{StaticResource HintText}"
@@ -71,8 +71,7 @@
         <!-- Аккаунт: текущий скин и плащи -->
         <DockPanel Grid.Column="2" Margin="12,0,0,0">
             <TextBlock DockPanel.Dock="Top" Text="На аккаунте" Style="{StaticResource SectionTitle}" Margin="2,0,0,6" />
-            <Border DockPanel.Dock="Top" Background="{DynamicResource Brush.PanelDeep}" BorderBrush="{DynamicResource Brush.Outline}"
-                    BorderThickness="2" Padding="8">
+            <Border DockPanel.Dock="Top" Style="{StaticResource Card}" Padding="8">
                 <DockPanel>
                     <Image DockPanel.Dock="Left" Source="{Binding AccountSkinPreview}" Width="32" Height="64" Margin="0,0,10,0"
                            RenderOptions.BitmapScalingMode="NearestNeighbor" />
@@ -120,3 +119,4 @@
         <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding Status}" Style="{StaticResource HintText}" Margin="0,8,0,0" />
     </Grid>
 </UserControl>
+

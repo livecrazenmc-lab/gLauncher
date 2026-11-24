@@ -261,6 +261,18 @@ public partial class SettingsViewModel : ObservableObject
 
     public CreditsViewModel Credits { get; } = new();
 
+    /// <summary>Анимированные частицы на фоне (снег, листья…). Выключаются в «Оформлении».</summary>
+    public bool AnimatedBackground
+    {
+        get => _settings.AnimatedBackground;
+        set
+        {
+            _settings.AnimatedBackground = value;
+            _settings.Save();
+            OnPropertyChanged();
+        }
+    }
+
     // --- Плюшки для людей из благодарностей ---
 
     /// <summary>Блок «Для разработчиков» — только для людей из благодарностей (по UUID аккаунта).</summary>
