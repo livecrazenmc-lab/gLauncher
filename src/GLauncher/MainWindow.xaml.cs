@@ -46,6 +46,7 @@ public partial class MainWindow : Window
         MinimizeButton.Click += (_, _) => WindowState = WindowState.Minimized;
         MaximizeButton.Click += (_, _) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
         CloseButton.Click += (_, _) => Close();
+        BirthdayClose.Click += (_, _) => BirthdayBanner.Visibility = Visibility.Collapsed; // до перезапуска
         StateChanged += (_, _) => OnStateChanged();
 
         // Плавная смена страниц и вкладок: содержимое проявляется и чуть всплывает

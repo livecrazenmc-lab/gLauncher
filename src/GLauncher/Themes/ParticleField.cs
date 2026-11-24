@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -21,7 +21,7 @@ public sealed class ParticleField : Canvas
     /// <summary>Выключатель (настройка «Анимированный фон»).</summary>
     public bool IsActive { get => (bool)GetValue(IsActiveProperty); set => SetValue(IsActiveProperty, value); }
 
-    private enum Sprite { Snowflake, SnowDot, Leaf, Petal, Seed, Firefly, Ember, Mote, Sparkle, Bat }
+    private enum Sprite { Snowflake, SnowDot, Leaf, Petal, Seed, Firefly, Ember, Mote, Sparkle, Bat, Confetti, Balloon }
 
     private sealed class Particle
     {
@@ -71,6 +71,7 @@ public sealed class ParticleField : Canvas
             ParticleKind.Sparkles => 28,
             ParticleKind.Motes or ParticleKind.Fireflies => 32,
             ParticleKind.Snow => 70,
+            ParticleKind.Party => 60,
             _ => 46,
         };
         for (var i = 0; i < count; i++)
@@ -188,6 +189,19 @@ public sealed class ParticleField : Canvas
         "M10,9 C9.5,7.5 8.5,7.3 7.6,8 C6,5.5 3,5.2 0,7 C1.8,8 2.6,10 2.8,12.5 C4.6,10.8 6.6,11.2 8,12.6 C8.8,11.6 9.4,11.4 10,11.4 " +
         "C10.6,11.4 11.2,11.6 12,12.6 C13.4,11.2 15.4,10.8 17.2,12.5 C17.4,10 18.2,8 20,7 C17,5.2 14,5.5 12.4,8 C11.5,7.3 10.5,7.5 10,9 Z");
 
+    private static readonly Geometry[] ConfettiShapes =
+    [
+        Frozen("M0,0 H20 V10 H0 Z"),                                  // прямоугольник
+        Frozen("M0,6 C5,0 10,12 15,6 C17,4 19,4 20,6 L20,10 C15,16 10,4 5,10 C3,12 1,12 0,10 Z"), // ленточка-серпантин
+        Frozen("M10,0 L20,20 L0,20 Z"),                               // треугольник
+        Frozen("M10,0 A10,10 0 1 1 10,20 A10,10 0 1 1 10,0 Z"),      // кружок
+    ];
+
+    /// <summary>Воздушный шарик с узелком и ниткой (холст 20×34).</summary>
+    private static readonly Geometry BalloonShape = Frozen(
+        "M10,0 C16,0 20,5 20,11 C20,18 14,23 10,24 C6,23 0,18 0,11 C0,5 4,0 10,0 Z M8.5,24 L11.5,24 L10,26.5 Z");
+    private static readonly Geometry BalloonString = Frozen("M10,26 C8,28 12,30 10,32 C9,33 10,34 10,34");
+
     private static readonly Color[] SnowColors =
         [Color.FromRgb(0xFF, 0xFF, 0xFF), Color.FromRgb(0xF0, 0xF9, 0xFF), Color.FromRgb(0xE0, 0xF2, 0xFE), Color.FromRgb(0xBA, 0xE6, 0xFD)];
 
@@ -224,6 +238,7 @@ public sealed class ParticleField : Canvas
             ParticleKind.Embers when t.Id == ThemeId.Halloween => roll < 0.12 ? Sprite.Bat : Sprite.Ember,
             ParticleKind.Embers => Sprite.Ember,
             ParticleKind.Motes => Sprite.Mote,
+            ParticleKind.Party => roll < 0.12 ? Sprite.Balloon : roll < 0.22 ? Sprite.Sparkle : Sprite.Confetti,
             _ => Sprite.Sparkle,
         };
     }
@@ -370,6 +385,39 @@ public sealed class ParticleField : Canvas
                 p.Age = -Range(0, 8); // мыши пролетают изредка
                 break;
             }
+            case Sprite.Confetti:
+            {
+                p.Size = Range(7, 13);
+                s.Data = Pick(ConfettiShapes);
+                s.Fill = BrushOf(ThemeColor(allowWhite: false));
+                p.Vy = Range(40, 75);
+                p.Vx = Range(-10, 10);
+                p.Sway = Range(10, 26);
+                p.Spin = Range(120, 360) * (_rnd.Next(2) == 0 ? -1 : 1);
+                p.Flutter = Range(4, 9);
+                p.BaseOpacity = Range(0.75, 1);
+                SpawnFromTop(p, w, h, initial);
+                break;
+            }
+            case Sprite.Balloon:
+            {
+                p.Size = Range(18, 30);
+                var group = new GeometryGroup();
+                group.Children.Add(BalloonShape);
+                group.Children.Add(BalloonString);
+                group.Freeze();
+                s.Data = group;
+                s.Fill = BrushOf(ThemeColor(allowWhite: false));
+                s.Stroke = BrushOf(Color.FromArgb(0x90, 0xFF, 0xFF, 0xFF));
+                s.StrokeThickness = 0.6;
+                p.Vy = -Range(18, 34);
+                p.Vx = Range(-4, 6);
+                p.Sway = Range(6, 14);
+                p.Angle = Range(-8, 8);
+                p.BaseOpacity = Range(0.8, 0.95);
+                p.X = Range(0, w); p.Y = initial ? Range(h * 0.2, h) : h + 40;
+                break;
+            }
             default: // Sparkle — вспыхивающие на месте звёздочки
             {
                 p.Size = Range(6, 14);
@@ -384,8 +432,8 @@ public sealed class ParticleField : Canvas
             }
         }
 
-        s.Width = p.Kind == Sprite.Bat ? p.Size * 1.6 : p.Size;
-        s.Height = p.Size;
+        s.Width = p.Kind switch { Sprite.Bat => p.Size * 1.6, Sprite.Confetti => p.Size * 0.8, _ => p.Size };
+        s.Height = p.Kind switch { Sprite.Balloon => p.Size * 1.7, Sprite.Confetti => p.Size * 0.5, _ => p.Size };
         s.Opacity = 0;
         Apply(p);
     }
@@ -479,6 +527,21 @@ public sealed class ParticleField : Canvas
                     dead = p.X < -60 || p.X > w + 60;
                     break;
 
+                case Sprite.Confetti:
+                    p.X += (p.Vx + wind * 0.4 + Math.Sin(p.Phase * 2.1) * p.Sway) * dt;
+                    p.Y += p.Vy * dt;
+                    p.Angle += p.Spin * dt;
+                    p.Scale.ScaleY = Math.Cos(p.Phase * p.Flutter); // кувыркается
+                    dead = p.Y > h + 20 || p.X > w + 20 || p.X < -20;
+                    break;
+
+                case Sprite.Balloon:
+                    p.X += (p.Vx + Math.Sin(p.Phase * 0.8) * p.Sway) * dt;
+                    p.Y += p.Vy * dt;
+                    p.Rotate.Angle = p.Angle + Math.Sin(p.Phase * 1.1) * 6;
+                    dead = p.Y < -70;
+                    break;
+
                 default: // Sparkle
                     p.Angle += p.Spin * dt;
                     var k = SmoothPulse(p.Age / p.Life);
@@ -497,7 +560,7 @@ public sealed class ParticleField : Canvas
             // Плавное проявление новых частиц
             if (p.Kind is not (Sprite.Firefly or Sprite.Sparkle)) opacity *= Math.Clamp(p.Age / 0.8, 0, 1);
             p.Shape.Opacity = opacity;
-            if (p.Kind != Sprite.Seed) Apply(p);
+            if (p.Kind is not (Sprite.Seed or Sprite.Balloon)) Apply(p);
             else { p.Move.X = p.X; p.Move.Y = p.Y; }
         }
     }

@@ -38,8 +38,81 @@ public partial class AccountsViewModel : ObservableObject
     /// <summary>Вызывается при смене активного аккаунта или его лицензий.</summary>
     public event EventHandler? ActiveAccountChanged;
 
+    // --- День рождения активного аккаунта (день и месяц, локально) ---
+
+    public static IReadOnlyList<int> Days { get; } = Enumerable.Range(1, 31).ToList();
+
+    public static IReadOnlyList<string> Months { get; } =
+        ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+
+    private (int Month, int Day)? ParsedBirthday =>
+        Selected?.Birthday is { Length: 5 } b && int.TryParse(b[..2], out var m) && int.TryParse(b[3..], out var d) ? (m, d) : null;
+
+    public int? BirthdayDay
+    {
+        get => ParsedBirthday?.Day ?? _pendingDay;
+        set => SetBirthday(value, ParsedBirthday?.Month ?? _pendingMonth);
+    }
+
+    /// <summary>Индекс месяца в <see cref="Months"/> (−1 — не указан).</summary>
+    public int BirthdayMonthIndex
+    {
+        get => ParsedBirthday is { } p ? p.Month - 1 : (_pendingMonth ?? 0) - 1;
+        set => SetBirthday(ParsedBirthday?.Day ?? _pendingDay, value >= 0 ? value + 1 : null);
+    }
+
+    /// <summary>Поздравление в день рождения активного аккаунта (null — не сегодня).</summary>
+    public string? BirthdayGreeting => Selected?.IsBirthday(DateTime.Today) == true ? $"С днём рождения, {Selected.DisplayName}!" : null;
+
+    /// <summary>Сменился день рождения активного аккаунта (или сам аккаунт) — пересчитать праздничную тему.</summary>
+    public event EventHandler? BirthdayChanged;
+
+    private void SetBirthday(int? day, int? month)
+    {
+        if (Selected is null) return;
+        if (day is { } d && month is { } m)
+        {
+            d = Math.Min(d, DateTime.DaysInMonth(2024, m)); // 2024 — високосный, чтобы 29 февраля было можно
+            Selected.Birthday = $"{m:00}-{d:00}";
+        }
+        else if (day is null && month is null)
+        {
+            Selected.Birthday = null;
+        }
+        else
+        {
+            // Пока выбрано только одно из двух — запоминаем частично, без сохранения даты
+            _pendingDay = day;
+            _pendingMonth = month;
+            OnPropertyChanged(nameof(BirthdayDay));
+            OnPropertyChanged(nameof(BirthdayMonthIndex));
+            return;
+        }
+        _store.Save();
+        NotifyBirthday();
+    }
+
+    private int? _pendingDay, _pendingMonth;
+
+    [RelayCommand]
+    private void ClearBirthday()
+    {
+        _pendingDay = _pendingMonth = null;
+        SetBirthday(null, null);
+    }
+
+    private void NotifyBirthday()
+    {
+        OnPropertyChanged(nameof(BirthdayDay));
+        OnPropertyChanged(nameof(BirthdayMonthIndex));
+        OnPropertyChanged(nameof(BirthdayGreeting));
+        BirthdayChanged?.Invoke(this, EventArgs.Empty);
+    }
+
     partial void OnSelectedChanged(Account? value)
     {
+        _pendingDay = _pendingMonth = null;
+        NotifyBirthday();
         _store.SelectedId = value?.Id;
         _store.Save();
         ActiveAccountChanged?.Invoke(this, EventArgs.Empty);

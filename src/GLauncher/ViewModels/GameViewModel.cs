@@ -8,6 +8,9 @@ namespace GLauncher.ViewModels;
 /// <summary>Страница Minecraft Dungeons / Dungeons II / Legends: найденные установки, запуск, магазин, список изменений.</summary>
 public partial class GameViewModel : ObservableObject
 {
+    /// <summary>Официальный арт для обложки «Играть» (null — пока не скачан, показывается свой куб).</summary>
+    [ObservableProperty] private System.Windows.Media.ImageSource? heroArt;
+
     private readonly AccountsViewModel _accounts;
 
     public GameViewModel(SpinoffGame game, AccountsViewModel accounts)

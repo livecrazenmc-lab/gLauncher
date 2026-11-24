@@ -13,6 +13,9 @@ namespace GLauncher.ViewModels;
 
 public partial class JavaViewModel : ObservableObject
 {
+    /// <summary>Официальный арт для обложки «Играть» (null — пока не скачан, показывается свой куб).</summary>
+    [ObservableProperty] private System.Windows.Media.ImageSource? heroArt;
+
     private const int MaxLogLines = 5000;
 
     private readonly AccountsViewModel _accounts;

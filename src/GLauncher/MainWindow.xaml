@@ -51,6 +51,22 @@
                 </StackPanel>
             </Grid>
 
+            <!-- ===== Поздравление в день рождения активного аккаунта ===== -->
+            <Border x:Name="BirthdayBanner" DockPanel.Dock="Top" Margin="12,0,12,12" Padding="16,10" CornerRadius="14"
+                    Background="{DynamicResource Brush.Banner}" BorderBrush="{DynamicResource Brush.OutlineStrong}" BorderThickness="1"
+                    Visibility="{Binding Accounts.BirthdayGreeting, Converter={StaticResource NotNullToVisibility}}">
+                <DockPanel>
+                    <Button x:Name="BirthdayClose" DockPanel.Dock="Right" Style="{StaticResource CaptionButton}" Width="34" Height="34"
+                            Content="&#xE711;" FontSize="11" ToolTip="Скрыть" VerticalAlignment="Center" />
+                    <TextBlock Text="&#x1F382;" FontFamily="Segoe UI Emoji" FontSize="24" VerticalAlignment="Center" Margin="0,0,14,0" />
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Accounts.BirthdayGreeting}" FontFamily="{DynamicResource Font.Display}" FontSize="16"
+                                   Foreground="{DynamicResource Brush.TextGold}" />
+                        <TextBlock Text="Лаунчер празднует вместе с вами: сегодня у него праздничное оформление." Style="{StaticResource HintText}" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
             <!-- ===== Баннер обновления: виден, когда на GitHub есть версия новее ===== -->
             <Border DockPanel.Dock="Top" Margin="12,0,12,12" Padding="16,10" CornerRadius="14"
                     Background="{DynamicResource Brush.Banner}" BorderBrush="{DynamicResource Brush.OutlineStrong}" BorderThickness="1"
@@ -85,14 +101,14 @@
             <!-- Java Edition -->
             <TabItem IsSelected="True">
                 <TabItem.Header>
-                    <StackPanel Orientation="Horizontal" ToolTip="{Binding Children[1].Text, RelativeSource={RelativeSource Self}}"
-                                ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
-                        <Border Width="26" Height="26" Margin="0,0,12,0" CornerRadius="7" ClipToBounds="True"
-                                Background="{themes:PixelTexture Kind=GrassBlock, TileSize=20}">
-                            <!-- Официальная иконка (каталог Microsoft Store); пока не скачана — видна пиксельная -->
-                            <Image Source="{Binding JavaIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"><Image.Clip><RectangleGeometry Rect="0,0,26,26" RadiusX="7" RadiusY="7" /></Image.Clip></Image>
-                        </Border>
-                        <TextBlock Text="Java Edition" VerticalAlignment="Center" Style="{StaticResource NavLabel}" />
+                    <StackPanel Orientation="Horizontal" ToolTip="Java Edition" ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
+                        <!-- Своя пиксельная иконка издания (EditionIcons.cs) -->
+                        <Image Source="{x:Static themes:EditionIcons.Java}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
+                               RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                        <StackPanel VerticalAlignment="Center" Style="{StaticResource NavLabelPanel}">
+                            <TextBlock Text="MINECRAFT" FontSize="10" Foreground="{DynamicResource Brush.TextDim}" />
+                            <TextBlock Text="JAVA EDITION" FontSize="13" />
+                        </StackPanel>
                     </StackPanel>
                 </TabItem.Header>
                 <TabControl>
@@ -108,14 +124,14 @@
             <!-- Bedrock Edition -->
             <TabItem>
                 <TabItem.Header>
-                    <StackPanel Orientation="Horizontal" ToolTip="{Binding Children[1].Text, RelativeSource={RelativeSource Self}}"
-                                ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
-                        <Border Width="26" Height="26" Margin="0,0,12,0" CornerRadius="7" ClipToBounds="True"
-                                Background="{themes:PixelTexture Kind=Stone, TileSize=20}">
-                            <!-- Официальная иконка (каталог Microsoft Store); пока не скачана — видна пиксельная -->
-                            <Image Source="{Binding BedrockIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"><Image.Clip><RectangleGeometry Rect="0,0,26,26" RadiusX="7" RadiusY="7" /></Image.Clip></Image>
-                        </Border>
-                        <TextBlock Text="Bedrock Edition" VerticalAlignment="Center" Style="{StaticResource NavLabel}" />
+                    <StackPanel Orientation="Horizontal" ToolTip="Bedrock Edition" ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
+                        <!-- Своя пиксельная иконка издания (EditionIcons.cs) -->
+                        <Image Source="{x:Static themes:EditionIcons.Bedrock}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
+                               RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                        <StackPanel VerticalAlignment="Center" Style="{StaticResource NavLabelPanel}">
+                            <TextBlock Text="MINECRAFT" FontSize="10" Foreground="{DynamicResource Brush.TextDim}" />
+                            <TextBlock Text="BEDROCK EDITION" FontSize="13" />
+                        </StackPanel>
                     </StackPanel>
                 </TabItem.Header>
                 <TabControl>
@@ -124,17 +140,35 @@
                 </TabControl>
             </TabItem>
 
+            <!-- Minecraft Dungeons II -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" ToolTip="Minecraft Dungeons II" ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
+                        <!-- Своя пиксельная иконка издания (EditionIcons.cs) -->
+                        <Image Source="{x:Static themes:EditionIcons.DungeonsII}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
+                               RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                        <StackPanel VerticalAlignment="Center" Style="{StaticResource NavLabelPanel}">
+                            <TextBlock Text="MINECRAFT" FontSize="10" Foreground="{DynamicResource Brush.TextDim}" />
+                            <TextBlock Text="DUNGEONS II" FontSize="13" />
+                        </StackPanel>
+                    </StackPanel>
+                </TabItem.Header>
+                <TabControl>
+                    <TabItem Header="Играть"><views:GamePlayView DataContext="{Binding DungeonsII}" /></TabItem>
+                </TabControl>
+            </TabItem>
+
             <!-- Minecraft Dungeons -->
             <TabItem>
                 <TabItem.Header>
-                    <StackPanel Orientation="Horizontal" ToolTip="{Binding Children[1].Text, RelativeSource={RelativeSource Self}}"
-                                ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
-                        <Border Width="26" Height="26" Margin="0,0,12,0" CornerRadius="7" ClipToBounds="True"
-                                Background="{themes:PixelTexture Kind=Planks, TileSize=20}">
-                            <!-- Официальная иконка (каталог Microsoft Store); пока не скачана — видна пиксельная -->
-                            <Image Source="{Binding DungeonsIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"><Image.Clip><RectangleGeometry Rect="0,0,26,26" RadiusX="7" RadiusY="7" /></Image.Clip></Image>
-                        </Border>
-                        <TextBlock Text="Minecraft Dungeons" VerticalAlignment="Center" Style="{StaticResource NavLabel}" />
+                    <StackPanel Orientation="Horizontal" ToolTip="Minecraft Dungeons" ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
+                        <!-- Своя пиксельная иконка издания (EditionIcons.cs) -->
+                        <Image Source="{x:Static themes:EditionIcons.Dungeons}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
+                               RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                        <StackPanel VerticalAlignment="Center" Style="{StaticResource NavLabelPanel}">
+                            <TextBlock Text="MINECRAFT" FontSize="10" Foreground="{DynamicResource Brush.TextDim}" />
+                            <TextBlock Text="DUNGEONS" FontSize="13" />
+                        </StackPanel>
                     </StackPanel>
                 </TabItem.Header>
                 <TabControl>
@@ -143,35 +177,17 @@
                 </TabControl>
             </TabItem>
 
-            <!-- Minecraft Dungeons II -->
-            <TabItem>
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal" ToolTip="{Binding Children[1].Text, RelativeSource={RelativeSource Self}}"
-                                ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
-                        <Border Width="26" Height="26" Margin="0,0,12,0" CornerRadius="7" ClipToBounds="True"
-                                Background="{themes:PixelTexture Kind=DarkPlanks, TileSize=20}">
-                            <!-- Официальная иконка (каталог Microsoft Store); пока не скачана — видна пиксельная -->
-                            <Image Source="{Binding DungeonsIIIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"><Image.Clip><RectangleGeometry Rect="0,0,26,26" RadiusX="7" RadiusY="7" /></Image.Clip></Image>
-                        </Border>
-                        <TextBlock Text="Minecraft Dungeons II" VerticalAlignment="Center" Style="{StaticResource NavLabel}" />
-                    </StackPanel>
-                </TabItem.Header>
-                <TabControl>
-                    <TabItem Header="Играть"><views:GamePlayView DataContext="{Binding DungeonsII}" /></TabItem>
-                </TabControl>
-            </TabItem>
-
             <!-- Minecraft Legends -->
             <TabItem>
                 <TabItem.Header>
-                    <StackPanel Orientation="Horizontal" ToolTip="{Binding Children[1].Text, RelativeSource={RelativeSource Self}}"
-                                ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
-                        <Border Width="26" Height="26" Margin="0,0,12,0" CornerRadius="7" ClipToBounds="True"
-                                Background="{themes:PixelTexture Kind=MossyStone, TileSize=20}">
-                            <!-- Официальная иконка (каталог Microsoft Store); пока не скачана — видна пиксельная -->
-                            <Image Source="{Binding LegendsIcon}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"><Image.Clip><RectangleGeometry Rect="0,0,26,26" RadiusX="7" RadiusY="7" /></Image.Clip></Image>
-                        </Border>
-                        <TextBlock Text="Minecraft Legends" VerticalAlignment="Center" Style="{StaticResource NavLabel}" />
+                    <StackPanel Orientation="Horizontal" ToolTip="Minecraft Legends" ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
+                        <!-- Своя пиксельная иконка издания (EditionIcons.cs) -->
+                        <Image Source="{x:Static themes:EditionIcons.Legends}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
+                               RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                        <StackPanel VerticalAlignment="Center" Style="{StaticResource NavLabelPanel}">
+                            <TextBlock Text="MINECRAFT" FontSize="10" Foreground="{DynamicResource Brush.TextDim}" />
+                            <TextBlock Text="LEGENDS" FontSize="13" />
+                        </StackPanel>
                     </StackPanel>
                 </TabItem.Header>
                 <TabControl>
@@ -184,7 +200,7 @@
             <TabItem DockPanel.Dock="Bottom">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" ToolTip="Настройки" ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
-                        <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="17" Width="26" TextAlignment="Center" Margin="0,0,12,0" VerticalAlignment="Center" />
+                        <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="17" Width="32" TextAlignment="Center" Margin="0,0,12,0" VerticalAlignment="Center" />
                         <TextBlock Text="Настройки" VerticalAlignment="Center" Style="{StaticResource NavLabel}" />
                     </StackPanel>
                 </TabItem.Header>
@@ -196,7 +212,7 @@
                 <TabItem.Header>
                     <Button Style="{StaticResource NavButton}" Command="{Binding ToggleSidebarCommand}" ToolTip="{Binding SidebarToggleText}">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14" Width="26" TextAlignment="Center" Margin="0,0,12,0"
+                            <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="14" Width="32" TextAlignment="Center" Margin="0,0,12,0"
                                        VerticalAlignment="Center" Text="{Binding SidebarToggleGlyph}" />
                             <TextBlock Text="{Binding SidebarToggleText}" VerticalAlignment="Center" Style="{StaticResource NavLabel}" />
                         </StackPanel>

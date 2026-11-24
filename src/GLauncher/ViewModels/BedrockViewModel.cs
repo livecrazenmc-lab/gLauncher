@@ -14,6 +14,9 @@ public sealed record BedrockChannelOption(BedrockEdition Edition, string Title)
 
 public partial class BedrockViewModel : ObservableObject
 {
+    /// <summary>Официальный арт для обложки «Играть» (null — пока не скачан, показывается свой куб).</summary>
+    [ObservableProperty] private System.Windows.Media.ImageSource? heroArt;
+
     private readonly AccountsViewModel _accounts;
     private readonly LauncherSettings _settings;
 

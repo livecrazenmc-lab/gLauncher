@@ -60,6 +60,23 @@
         <Setter Property="SnapsToDevicePixels" Value="True" />
     </Style>
 
+    <!-- Обложка игры: слой арта виден, когда арт скачан; запасной вид (куб и заголовок) — когда его нет -->
+    <Style x:Key="HeroArtLayer" TargetType="Border">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding HeroArt}" Value="{x:Null}">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="HeroFallback" TargetType="Grid">
+        <Setter Property="Visibility" Value="Collapsed" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding HeroArt}" Value="{x:Null}">
+                <Setter Property="Visibility" Value="Visible" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
     <!-- ============================ Кнопки ============================ -->
     <Style TargetType="Button">
         <Setter Property="OverridesDefaultStyle" Value="True" />
@@ -816,6 +833,14 @@
 
     <!-- Подпись пункта боковой панели: прячется, когда панель свёрнута до иконок -->
     <Style x:Key="NavLabel" TargetType="TextBlock">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding SidebarCollapsed}" Value="True">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="NavLabelPanel" TargetType="StackPanel">
         <Style.Triggers>
             <DataTrigger Binding="{Binding SidebarCollapsed}" Value="True">
                 <Setter Property="Visibility" Value="Collapsed" />

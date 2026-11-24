@@ -15,6 +15,8 @@ public partial class App : Application
         // Тема должна быть применена до создания главного окна.
         var settings = LauncherSettings.Load();
         var theme = ThemeManager.FromSetting(settings.Theme);
+        var accounts = GLauncher.Core.Auth.AccountStore.Load();
+        ThemeManager.BirthdayToday = accounts.Accounts.FirstOrDefault(a => a.Id == accounts.SelectedId)?.IsBirthday(DateTime.Today) == true;
         if (ThemeManager.IsExclusive(theme))
         {
             // Эксклюзивная тема — только если активный аккаунт есть в благодарностях.

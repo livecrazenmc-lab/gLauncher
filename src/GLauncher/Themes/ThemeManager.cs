@@ -5,14 +5,13 @@ namespace GLauncher.Themes;
 
 public enum ThemeId
 {
-    Auto, Blocks, Spring, Summer, Autumn, Winter, NewYear, Easter, Halloween,
+    Auto, Blocks, Spring, Summer, Autumn, Winter, NewYear, Easter, Halloween, Birthday,
     // Эксклюзивные — только для людей из благодарностей
     Legends, Dungeons, Nether, End,
 }
 
-/// <summary>Анимированные частицы на фоне окна — «характер» темы.</summary>
-/// <summary>Частицы фона. Dandelions — лето: пух одуванчика и светлячки.</summary>
-public enum ParticleKind { None, Snow, Leaves, Petals, Fireflies, Embers, Sparkles, Motes, Dandelions }
+/// <summary>Частицы фона — «характер» темы. Dandelions — лето (пух и светлячки), Party — день рождения (конфетти и шарики).</summary>
+public enum ParticleKind { None, Snow, Leaves, Petals, Fireflies, Embers, Sparkles, Motes, Dandelions, Party }
 
 /// <summary>
 /// Тема стиля «Изометрия»: тёмный градиент фона, пара акцентных цветов (кнопки, свечения, сетка),
@@ -57,6 +56,8 @@ public static class ThemeManager
             ParticleKind.Petals, [C("#C4B5FD"), C("#F9A8D4"), C("#FDE68A"), C("#A7F3D0")]),
         new(ThemeId.Halloween, "Хэллоуин", C("#110C13"), C("#1C1220"), C("#FB923C"), C("#A855F7"), C("#FED7AA"),
             ParticleKind.Embers, [C("#FB923C"), C("#F97316"), C("#C084FC")]),
+        new(ThemeId.Birthday, "День рождения", C("#120D1C"), C("#1D1430"), C("#F472B6"), C("#FACC15"), C("#FBCFE8"),
+            ParticleKind.Party, [C("#F472B6"), C("#FACC15"), C("#38BDF8"), C("#4ADE80"), C("#A78BFA"), C("#FB923C")]),
 
         // ---- Эксклюзивные темы (благодарности) ----
         new(ThemeId.Legends, "★ Legends", C("#091515"), C("#0F2224"), C("#2DD4BF"), C("#FCD34D"), C("#CCFBF1"),
@@ -74,7 +75,11 @@ public static class ThemeManager
 
     /// <summary>Сезонные и праздничные оформления — отдельно не выбираются, их подбирает тема «Сезонная» (Auto) по дате.</summary>
     public static bool IsSeasonal(ThemeId id) =>
-        id is ThemeId.Spring or ThemeId.Summer or ThemeId.Autumn or ThemeId.Winter or ThemeId.NewYear or ThemeId.Easter or ThemeId.Halloween;
+        id is ThemeId.Spring or ThemeId.Summer or ThemeId.Autumn or ThemeId.Winter or ThemeId.NewYear or ThemeId.Easter or ThemeId.Halloween
+            or ThemeId.Birthday;
+
+    /// <summary>Сегодня день рождения владельца активного аккаунта — «Сезонная» тема становится праздничной.</summary>
+    public static bool BirthdayToday { get; set; }
 
     /// <summary>Тема из настроек: старые значения (конкретный сезон или праздник) превращаются в «Сезонную».</summary>
     public static ThemeId FromSetting(string? value)
@@ -87,7 +92,7 @@ public static class ThemeManager
 
     /// <summary>Тема, которая реально применится: для «Сезонной» (Auto) — по текущей дате.</summary>
     public static ThemeDefinition Resolve(ThemeId id, DateTime? today = null) =>
-        Get(id == ThemeId.Auto ? ForDate(today ?? DateTime.Today) : id);
+        Get(id != ThemeId.Auto ? id : BirthdayToday ? ThemeId.Birthday : ForDate(today ?? DateTime.Today));
 
     /// <summary>
     /// Автовыбор: Новый год 20.12–10.01, Хэллоуин 24.10–02.11, Пасха ±7 дней от православной Пасхи,

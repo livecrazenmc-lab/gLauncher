@@ -27,6 +27,8 @@ public partial class MainViewModel : ObservableObject
 
         // Плюшки зависят от активного аккаунта и списка благодарностей (он может обновиться с GitHub).
         Accounts.ActiveAccountChanged += (_, _) => UpdatePerks();
+        // День рождения активного аккаунта превращает «Сезонную» тему в праздничную
+        Accounts.BirthdayChanged += (_, _) => SettingsPage.RefreshSeasonal(Accounts.BirthdayGreeting is not null);
         GLauncher.Core.Players.CreditsService.Changed += () =>
             System.Windows.Application.Current?.Dispatcher.BeginInvoke(UpdatePerks);
         UpdatePerks();
@@ -89,41 +91,36 @@ public partial class MainViewModel : ObservableObject
         var updates = Settings.CheckForUpdates ? Updates.CheckOnStartupAsync() : Task.CompletedTask;
         await Task.WhenAll(Accounts.InitializeAsync(), Java.LoadVersionsAsync(), Content.ReloadAsync(), updates,
             SettingsPage.Credits.RefreshAsync(), Skins.InitializeAsync(), RefreshGamesAsync(), Accounts.LoadInitialFaceAsync(),
-            LoadIconsAsync());
+            LoadArtsAsync());
     }
 
-    // --- Официальные иконки игр (скачиваются из каталога Microsoft Store, кэш на диске) ---
-    [ObservableProperty] private System.Windows.Media.ImageSource? javaIcon;
-    [ObservableProperty] private System.Windows.Media.ImageSource? bedrockIcon;
-    [ObservableProperty] private System.Windows.Media.ImageSource? dungeonsIcon;
-    [ObservableProperty] private System.Windows.Media.ImageSource? dungeonsIIIcon;
-    [ObservableProperty] private System.Windows.Media.ImageSource? legendsIcon;
+    // --- Официальные арты игр для обложек (каталог Microsoft Store, кэш на диске) ---
 
-    private async Task LoadIconsAsync()
+    private async Task LoadArtsAsync()
     {
-        ShowIcons();                                         // сразу — из кэша
-        if ((await GameIcons.RefreshAsync(CancellationToken.None)).Count > 0) ShowIcons();
+        ShowArts();                                           // сразу — из кэша
+        if ((await GameArt.RefreshAsync(CancellationToken.None)).Count > 0) ShowArts();
     }
 
-    private void ShowIcons()
+    private void ShowArts()
     {
-        JavaIcon = LoadIcon(GameIconId.Java);
-        BedrockIcon = LoadIcon(GameIconId.Bedrock);
-        DungeonsIcon = LoadIcon(GameIconId.Dungeons);
-        DungeonsIIIcon = LoadIcon(GameIconId.DungeonsII);
-        LegendsIcon = LoadIcon(GameIconId.Legends);
+        Java.HeroArt = LoadArt(GameArtId.Java);
+        Bedrock.HeroArt = LoadArt(GameArtId.Bedrock);
+        Dungeons.HeroArt = LoadArt(GameArtId.Dungeons);
+        DungeonsII.HeroArt = LoadArt(GameArtId.DungeonsII);
+        Legends.HeroArt = LoadArt(GameArtId.Legends);
     }
 
-    private static System.Windows.Media.ImageSource? LoadIcon(GameIconId id)
+    private static System.Windows.Media.ImageSource? LoadArt(GameArtId id)
     {
-        if (GameIcons.Cached(id) is not { } path) return null;
+        if (GameArt.Cached(id) is not { } path) return null;
         try
         {
             var image = new System.Windows.Media.Imaging.BitmapImage();
             using var stream = System.IO.File.OpenRead(path);
             image.BeginInit();
             image.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
-            image.DecodePixelWidth = 64;
+            image.DecodePixelWidth = 1600;
             image.StreamSource = stream;
             image.EndInit();
             image.Freeze();
@@ -131,7 +128,7 @@ public partial class MainViewModel : ObservableObject
         }
         catch
         {
-            return null; // битый файл — останется своя пиксельная иконка
+            return null; // битый файл — останется свой куб
         }
     }
 
@@ -435,6 +432,16 @@ public partial class SettingsViewModel : ObservableObject
         _settings.Save();
         ThemeManager.Apply(ThemeManager.Resolve(value.Id));
         CurrentThemeText = ThemeText(value.Id);
+    }
+
+    /// <summary>Пересчитать «Сезонную» тему (например, наступил или указан день рождения).</summary>
+    public void RefreshSeasonal(bool birthday)
+    {
+        if (ThemeManager.BirthdayToday == birthday) return;
+        ThemeManager.BirthdayToday = birthday;
+        if (SelectedTheme.Id != ThemeId.Auto) return;
+        ThemeManager.Apply(ThemeManager.Resolve(ThemeId.Auto));
+        CurrentThemeText = ThemeText(ThemeId.Auto);
     }
 
     private static string ThemeText(ThemeId id) =>

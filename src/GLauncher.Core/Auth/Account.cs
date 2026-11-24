@@ -25,6 +25,20 @@ public sealed class Account
     public List<string> Entitlements { get; set; } = [];
     public DateTimeOffset LastChecked { get; set; }
 
+    /// <summary>
+    /// День рождения «ММ-дд» (без года) — вводится в лаунчере: Microsoft не отдаёт дату рождения
+    /// по входу Xbox Live. Хранится только локально, в зашифрованном списке аккаунтов.
+    /// </summary>
+    public string? Birthday { get; set; }
+
+    /// <summary>Сегодня день рождения владельца аккаунта (29 февраля в невисокосный год — 28-го).</summary>
+    public bool IsBirthday(DateTime today)
+    {
+        if (Birthday is not { Length: 5 } b || !int.TryParse(b[..2], out var month) || !int.TryParse(b[3..], out var day)) return false;
+        if (month == 2 && day == 29 && !DateTime.IsLeapYear(today.Year)) day = 28;
+        return today.Month == month && today.Day == day;
+    }
+
     [JsonIgnore]
     public string DisplayName => Username ?? Gamertag ?? "Аккаунт Microsoft";
 
@@ -71,6 +85,7 @@ public sealed class AccountStore
         if (index >= 0)
         {
             account.Id = Accounts[index].Id;
+            account.Birthday ??= Accounts[index].Birthday; // вводится в лаунчере, при повторном входе не теряется
             Accounts[index] = account;
         }
         else
