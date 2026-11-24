@@ -21,6 +21,9 @@ public sealed class LauncherSettings
     /// <summary>Тема оформления: Auto (по дате), Blocks, Spring, Summer, Autumn, Winter, NewYear, Easter, Halloween.</summary>
     public string Theme { get; set; } = "Auto";
 
+    /// <summary>Какой Bedrock запускать: обычную версию или Minecraft Preview.</summary>
+    public bool BedrockPreview { get; set; }
+
     /// <summary>Проверять обновления лаунчера при запуске.</summary>
     public bool CheckForUpdates { get; set; } = true;
 

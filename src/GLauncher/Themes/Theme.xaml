@@ -539,6 +539,77 @@
         </Setter>
     </Style>
 
+    <!-- ===================== Боковая панель (как в официальном лаунчере) =====================
+         Внешний TabControl: слева список (аккаунт, игры, настройки внизу), справа страница выбранного пункта.
+         Пункты складываются в DockPanel: DockPanel.Dock="Bottom" на TabItem прижимает его к низу. -->
+    <Style x:Key="SidebarTabControl" TargetType="TabControl">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabControl">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Left" Width="236" Background="{DynamicResource Brush.PanelDeep}"
+                                BorderBrush="{DynamicResource Brush.Outline}" BorderThickness="0,0,2,0">
+                            <DockPanel IsItemsHost="True" LastChildFill="False" Margin="0,8" />
+                        </Border>
+                        <ContentPresenter ContentSource="SelectedContent" Margin="10,8,10,10"
+                                          TextElement.Foreground="{DynamicResource Brush.Text}" />
+                    </DockPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="NavItem" TargetType="TabItem">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="DockPanel.Dock" Value="Top" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabItem">
+                    <Grid Background="Transparent" Margin="6,1">
+                        <Border x:Name="Bg" Background="Transparent" />
+                        <Border x:Name="Bar" Width="4" HorizontalAlignment="Left" Background="{DynamicResource Brush.AccentLight}" Visibility="Collapsed" />
+                        <ContentPresenter x:Name="Header" ContentSource="Header" Margin="14,9,10,9" VerticalAlignment="Center"
+                                          TextElement.Foreground="{DynamicResource Brush.TextDim}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Brush.Hover}" />
+                            <Setter TargetName="Header" Property="TextElement.Foreground" Value="{DynamicResource Brush.Text}" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Brush.Selection}" />
+                            <Setter TargetName="Bar" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="Header" Property="TextElement.Foreground" Value="{DynamicResource Brush.Text}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Подпись раздела в боковой панели («ИГРЫ») — некликабельный пункт -->
+    <Style x:Key="NavSection" TargetType="TabItem">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="DockPanel.Dock" Value="Top" />
+        <Setter Property="IsEnabled" Value="False" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabItem">
+                    <ContentPresenter ContentSource="Header" Margin="20,14,10,4" TextElement.FontSize="11" TextElement.FontWeight="Bold"
+                                      TextElement.Foreground="{DynamicResource Brush.TextDim}" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- ============================ Прочее ============================ -->
     <Style TargetType="GroupBox">
         <Setter Property="OverridesDefaultStyle" Value="True" />

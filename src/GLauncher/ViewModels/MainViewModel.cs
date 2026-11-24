@@ -3,6 +3,7 @@ using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GLauncher.Core;
+using GLauncher.Core.Games;
 using GLauncher.Core.Updates;
 using GLauncher.Themes;
 
@@ -17,7 +18,10 @@ public partial class MainViewModel : ObservableObject
         Java = new JavaViewModel(Accounts, Settings);
         Content = new ContentViewModel(Java);
         Skins = new SkinsViewModel(Accounts);
-        Bedrock = new BedrockViewModel(Accounts);
+        Bedrock = new BedrockViewModel(Accounts, Settings);
+        Dungeons = new GameViewModel(SpinoffGames.Dungeons, Accounts);
+        DungeonsII = new GameViewModel(SpinoffGames.DungeonsII, Accounts);
+        Legends = new GameViewModel(SpinoffGames.Legends, Accounts);
         Updates = new UpdatesViewModel(Settings);
         SettingsPage = new SettingsViewModel(Settings, Updates);
     }
@@ -25,9 +29,13 @@ public partial class MainViewModel : ObservableObject
     public LauncherSettings Settings { get; }
     public AccountsViewModel Accounts { get; }
     public JavaViewModel Java { get; }
+    public PatchNotesViewModel JavaPatchNotes { get; } = new(PatchNotesKind.Java, hasSnapshots: true);
     public ContentViewModel Content { get; }
     public SkinsViewModel Skins { get; }
     public BedrockViewModel Bedrock { get; }
+    public GameViewModel Dungeons { get; }
+    public GameViewModel DungeonsII { get; }
+    public GameViewModel Legends { get; }
     public UpdatesViewModel Updates { get; }
     public SettingsViewModel SettingsPage { get; }
 
@@ -35,7 +43,17 @@ public partial class MainViewModel : ObservableObject
     {
         var updates = Settings.CheckForUpdates ? Updates.CheckAsync(silent: true) : Task.CompletedTask;
         await Task.WhenAll(Accounts.InitializeAsync(), Java.LoadVersionsAsync(), Content.ReloadAsync(), updates,
-            SettingsPage.Credits.RefreshAsync(), Skins.InitializeAsync());
+            SettingsPage.Credits.RefreshAsync(), Skins.InitializeAsync(), RefreshGamesAsync(), Accounts.LoadInitialFaceAsync());
+    }
+
+    /// <summary>Ищет установленные Dungeons, Dungeons II и Legends (Microsoft Store/Xbox и Steam).</summary>
+    [RelayCommand]
+    private async Task RefreshGamesAsync()
+    {
+        var found = await Task.Run(SpinoffGames.DetectAll);
+        Dungeons.SetInstalls(found[SpinoffGames.Dungeons.Id]);
+        DungeonsII.SetInstalls(found[SpinoffGames.DungeonsII.Id]);
+        Legends.SetInstalls(found[SpinoffGames.Legends.Id]);
     }
 }
 

@@ -43,7 +43,39 @@ public partial class AccountsViewModel : ObservableObject
         _store.SelectedId = value?.Id;
         _store.Save();
         ActiveAccountChanged?.Invoke(this, EventArgs.Empty);
+        _ = LoadFaceAsync(value);
     }
+
+    /// <summary>Лицо скина активного аккаунта — для карточки игрока в боковой панели.</summary>
+    [ObservableProperty] private System.Windows.Media.ImageSource? activeFace;
+
+    /// <summary>Подпись под ником в карточке игрока.</summary>
+    public string ActiveSubtitle => Selected switch
+    {
+        null => "Нажмите, чтобы войти",
+        { OwnsJava: true, OwnsBedrock: true } => "Java и Bedrock",
+        { OwnsJava: true } => "Java Edition",
+        { OwnsBedrock: true } => "Bedrock Edition",
+        _ => "Нет лицензии Minecraft",
+    };
+
+    private async Task LoadFaceAsync(Account? account)
+    {
+        OnPropertyChanged(nameof(ActiveSubtitle));
+        ActiveFace = null;
+        if (account?.Uuid is not { } uuid) return;
+        if (GLauncher.Core.Players.PlayerProfileService.LoadCached(uuid) is { SkinPath: { } cached })
+            ActiveFace = SkinFace.Load(cached);
+        try
+        {
+            var fresh = await GLauncher.Core.Players.PlayerProfileService.FetchAsync(uuid, CancellationToken.None);
+            if (Selected == account && fresh.SkinPath is { } path) ActiveFace = SkinFace.Load(path);
+        }
+        catch { /* офлайн — остаётся лицо из кэша */ }
+    }
+
+    /// <summary>Загрузить лицо при старте лаунчера.</summary>
+    public Task LoadInitialFaceAsync() => LoadFaceAsync(Selected);
 
     private MicrosoftAuthService CreateAuth() => new(AuthConfig.Resolve(_settings));
 
@@ -164,6 +196,7 @@ public partial class AccountsViewModel : ObservableObject
         _store.Save();
         CollectionViewSource.GetDefaultView(Items).Refresh();
         OnPropertyChanged(nameof(Selected));
+        OnPropertyChanged(nameof(ActiveSubtitle));
         ActiveAccountChanged?.Invoke(this, EventArgs.Empty);
     }
 
