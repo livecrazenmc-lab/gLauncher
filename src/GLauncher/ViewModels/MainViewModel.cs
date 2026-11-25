@@ -99,21 +99,34 @@ public partial class MainViewModel : ObservableObject
     private async Task LoadArtsAsync()
     {
         ShowArts();                                           // сразу — из кэша
-        if ((await GameArt.RefreshAsync(CancellationToken.None)).Count > 0) ShowArts();
+        var store = GameArt.RefreshAsync(CancellationToken.None);
+        var java = VersionArt.RefreshAsync(PatchNotesKind.Java, CancellationToken.None);
+        var bedrock = VersionArt.RefreshAsync(PatchNotesKind.Bedrock, CancellationToken.None);
+        await Task.WhenAll(store, java, bedrock);
+        if ((await store).Count > 0 || await java || await bedrock) ShowArts();
     }
 
     private void ShowArts()
     {
-        Java.HeroArt = LoadArt(GameArtId.Java);
-        Bedrock.HeroArt = LoadArt(GameArtId.Bedrock);
+        // Java и Bedrock: арт актуальной версии (как в официальном лаунчере); нет его — арт магазина
+        var javaVersion = VersionArt.Cached(PatchNotesKind.Java);
+        Java.VersionArt = LoadImage(javaVersion?.Path);
+        Java.VersionArtTitle = javaVersion?.Title;
+        Java.HeroArt = Java.VersionArt is null ? LoadArt(GameArtId.Java) : null;
+        var bedrockVersion = VersionArt.Cached(PatchNotesKind.Bedrock);
+        Bedrock.VersionArt = LoadImage(bedrockVersion?.Path);
+        Bedrock.VersionArtTitle = bedrockVersion?.Title;
+        Bedrock.HeroArt = Bedrock.VersionArt is null ? LoadArt(GameArtId.Bedrock) : null;
         Dungeons.HeroArt = LoadArt(GameArtId.Dungeons);
         DungeonsII.HeroArt = LoadArt(GameArtId.DungeonsII);
         Legends.HeroArt = LoadArt(GameArtId.Legends);
     }
 
-    private static System.Windows.Media.ImageSource? LoadArt(GameArtId id)
+    private static System.Windows.Media.ImageSource? LoadArt(GameArtId id) => LoadImage(GameArt.Cached(id));
+
+    private static System.Windows.Media.ImageSource? LoadImage(string? path)
     {
-        if (GameArt.Cached(id) is not { } path) return null;
+        if (path is null || !System.IO.File.Exists(path)) return null;
         try
         {
             var image = new System.Windows.Media.Imaging.BitmapImage();

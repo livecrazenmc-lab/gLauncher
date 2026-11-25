@@ -16,6 +16,16 @@ public partial class JavaViewModel : ObservableObject
     /// <summary>Официальный арт для обложки «Играть» (null — пока не скачан, показывается свой куб).</summary>
     [ObservableProperty] private System.Windows.Media.ImageSource? heroArt;
 
+    /// <summary>Арт актуальной версии (картинка из списка изменений Mojang) — главнее арта магазина.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasVersionArt))]
+    private System.Windows.Media.ImageSource? versionArt;
+
+    /// <summary>Название актуальной версии (заголовок записи списка изменений).</summary>
+    [ObservableProperty] private string? versionArtTitle;
+
+    public bool HasVersionArt => VersionArt is not null;
+
     private const int MaxLogLines = 5000;
 
     private readonly AccountsViewModel _accounts;

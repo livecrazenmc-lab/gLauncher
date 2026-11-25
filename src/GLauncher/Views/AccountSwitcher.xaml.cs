@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -33,13 +33,14 @@ public partial class AccountSwitcher : UserControl
         if (_accounts is not null) _accounts.PropertyChanged += OnAccountsChanged;
     }
 
-    /// <summary>Во время входа список открыт и не закрывается, пока пользователь вводит код в браузере.</summary>
+    /// <summary>
+    /// Начался вход — список закрывается: код показывается карточкой внутри окна лаунчера.
+    /// (Popup в WPF всегда поверх всех окон и закрывал бы браузер, где вводят код.)
+    /// </summary>
     private void OnAccountsChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName != nameof(AccountsViewModel.DeviceCode)) return;
-        var loggingIn = _accounts?.DeviceCode is not null;
-        Panel.StaysOpen = loggingIn;
-        if (loggingIn) Panel.IsOpen = true;
+        if (_accounts?.DeviceCode is not null) Panel.IsOpen = false;
     }
 
     private void OnCardClick(object sender, RoutedEventArgs e)
@@ -97,7 +98,7 @@ public partial class AccountSwitcher : UserControl
         if (_downAccount is { } account && AccountAt(e.OriginalSource) == account)
         {
             _accounts?.ActivateCommand.Execute(account);
-            if (_accounts?.DeviceCode is null) Panel.IsOpen = false;
+            Panel.IsOpen = false;
         }
         _downAccount = null;
     }

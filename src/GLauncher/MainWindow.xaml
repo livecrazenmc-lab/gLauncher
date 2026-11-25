@@ -106,7 +106,6 @@
                         <Image Source="{x:Static themes:EditionIcons.Java}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
                                RenderOptions.BitmapScalingMode="NearestNeighbor" />
                         <StackPanel VerticalAlignment="Center" Style="{StaticResource NavLabelPanel}">
-                            <TextBlock Text="MINECRAFT" FontSize="10" Foreground="{DynamicResource Brush.TextDim}" />
                             <TextBlock Text="JAVA EDITION" FontSize="13" />
                         </StackPanel>
                     </StackPanel>
@@ -129,7 +128,6 @@
                         <Image Source="{x:Static themes:EditionIcons.Bedrock}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
                                RenderOptions.BitmapScalingMode="NearestNeighbor" />
                         <StackPanel VerticalAlignment="Center" Style="{StaticResource NavLabelPanel}">
-                            <TextBlock Text="MINECRAFT" FontSize="10" Foreground="{DynamicResource Brush.TextDim}" />
                             <TextBlock Text="BEDROCK EDITION" FontSize="13" />
                         </StackPanel>
                     </StackPanel>
@@ -148,7 +146,6 @@
                         <Image Source="{x:Static themes:EditionIcons.DungeonsII}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
                                RenderOptions.BitmapScalingMode="NearestNeighbor" />
                         <StackPanel VerticalAlignment="Center" Style="{StaticResource NavLabelPanel}">
-                            <TextBlock Text="MINECRAFT" FontSize="10" Foreground="{DynamicResource Brush.TextDim}" />
                             <TextBlock Text="DUNGEONS II" FontSize="13" />
                         </StackPanel>
                     </StackPanel>
@@ -166,7 +163,6 @@
                         <Image Source="{x:Static themes:EditionIcons.Dungeons}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
                                RenderOptions.BitmapScalingMode="NearestNeighbor" />
                         <StackPanel VerticalAlignment="Center" Style="{StaticResource NavLabelPanel}">
-                            <TextBlock Text="MINECRAFT" FontSize="10" Foreground="{DynamicResource Brush.TextDim}" />
                             <TextBlock Text="DUNGEONS" FontSize="13" />
                         </StackPanel>
                     </StackPanel>
@@ -185,7 +181,6 @@
                         <Image Source="{x:Static themes:EditionIcons.Legends}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
                                RenderOptions.BitmapScalingMode="NearestNeighbor" />
                         <StackPanel VerticalAlignment="Center" Style="{StaticResource NavLabelPanel}">
-                            <TextBlock Text="MINECRAFT" FontSize="10" Foreground="{DynamicResource Brush.TextDim}" />
                             <TextBlock Text="LEGENDS" FontSize="13" />
                         </StackPanel>
                     </StackPanel>
@@ -221,6 +216,30 @@
             </TabItem>
         </TabControl>
         </DockPanel>
+
+        <!-- Вход в аккаунт Microsoft: карточка с кодом внутри окна лаунчера (не поверх других программ) -->
+        <Grid DataContext="{Binding Accounts}" Visibility="{Binding DeviceCode, Converter={StaticResource NotNullToVisibility}}">
+            <Border Background="#99000000" />
+            <Border Style="{StaticResource Card}" Background="{DynamicResource Brush.Popup}" Width="480" Padding="26,22"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="20">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="30" ShadowDepth="8" Opacity="0.5" Color="Black" />
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Вход в аккаунт Microsoft" FontFamily="{DynamicResource Font.Display}" FontSize="18" />
+                    <TextBlock Style="{StaticResource HintText}" TextWrapping="Wrap" Margin="0,8,0,0"
+                               Text="В браузере открылась страница Microsoft. Введите на ней этот код — он уже скопирован в буфер обмена." />
+                    <TextBox IsReadOnly="True" FontSize="30" FontWeight="Bold" FontFamily="Consolas" TextAlignment="Center"
+                             Text="{Binding DeviceCode.UserCode, Mode=OneWay}" Margin="0,16" Padding="8,10" />
+                    <UniformGrid Columns="3">
+                        <Button Content="Открыть" Command="{Binding OpenLoginPageCommand}" Margin="0,0,4,0" ToolTip="Открыть страницу входа Microsoft" />
+                        <Button Content="Скопировать" Command="{Binding CopyCodeCommand}" Margin="4,0" />
+                        <Button Content="Отмена" Command="{Binding CancelLoginCommand}" Margin="4,0,0,0" />
+                    </UniformGrid>
+                    <TextBlock Text="{Binding Status}" Style="{StaticResource HintText}" TextWrapping="Wrap" Margin="0,12,0,0" />
+                </StackPanel>
+            </Border>
+        </Grid>
 
         <!-- Слой для пасхалки (падающие блоки) — поверх всего, клики проходят насквозь -->
         <Canvas x:Name="FxLayer" IsHitTestVisible="False" ClipToBounds="True" />

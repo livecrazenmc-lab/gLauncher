@@ -74,6 +74,9 @@
             <DataTrigger Binding="{Binding HeroArt}" Value="{x:Null}">
                 <Setter Property="Visibility" Value="Visible" />
             </DataTrigger>
+            <DataTrigger Binding="{Binding HasVersionArt}" Value="True">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
         </Style.Triggers>
     </Style>
 
