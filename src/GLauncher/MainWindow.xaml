@@ -102,8 +102,8 @@
             <TabItem IsSelected="True">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" ToolTip="Java Edition" ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
-                        <!-- Своя пиксельная иконка издания (EditionIcons.cs) -->
-                        <Image Source="{x:Static themes:EditionIcons.Java}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
+                        <!-- Иконка издания (EditionIcons.cs) -->
+                        <Image Source="{Binding GrassIcon}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
                                RenderOptions.BitmapScalingMode="NearestNeighbor" />
                         <StackPanel VerticalAlignment="Center" Style="{StaticResource NavLabelPanel}">
                             <TextBlock Text="JAVA EDITION" FontSize="13" />
@@ -124,8 +124,8 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" ToolTip="Bedrock Edition" ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
-                        <!-- Своя пиксельная иконка издания (EditionIcons.cs) -->
-                        <Image Source="{x:Static themes:EditionIcons.Bedrock}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
+                        <!-- Иконка издания (EditionIcons.cs) -->
+                        <Image Source="{Binding GrassIcon}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
                                RenderOptions.BitmapScalingMode="NearestNeighbor" />
                         <StackPanel VerticalAlignment="Center" Style="{StaticResource NavLabelPanel}">
                             <TextBlock Text="BEDROCK EDITION" FontSize="13" />
@@ -142,7 +142,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" ToolTip="Minecraft Dungeons II" ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
-                        <!-- Своя пиксельная иконка издания (EditionIcons.cs) -->
+                        <!-- Иконка издания (EditionIcons.cs) -->
                         <Image Source="{x:Static themes:EditionIcons.DungeonsII}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
                                RenderOptions.BitmapScalingMode="NearestNeighbor" />
                         <StackPanel VerticalAlignment="Center" Style="{StaticResource NavLabelPanel}">
@@ -159,7 +159,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" ToolTip="Minecraft Dungeons" ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
-                        <!-- Своя пиксельная иконка издания (EditionIcons.cs) -->
+                        <!-- Иконка издания (EditionIcons.cs) -->
                         <Image Source="{x:Static themes:EditionIcons.Dungeons}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
                                RenderOptions.BitmapScalingMode="NearestNeighbor" />
                         <StackPanel VerticalAlignment="Center" Style="{StaticResource NavLabelPanel}">
@@ -177,7 +177,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" ToolTip="Minecraft Legends" ToolTipService.IsEnabled="{Binding SidebarCollapsed}" Background="Transparent">
-                        <!-- Своя пиксельная иконка издания (EditionIcons.cs) -->
+                        <!-- Иконка издания (EditionIcons.cs) -->
                         <Image Source="{x:Static themes:EditionIcons.Legends}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"
                                RenderOptions.BitmapScalingMode="NearestNeighbor" />
                         <StackPanel VerticalAlignment="Center" Style="{StaticResource NavLabelPanel}">

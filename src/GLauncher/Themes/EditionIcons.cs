@@ -5,14 +5,46 @@ using System.Windows.Media.Imaging;
 namespace GLauncher.Themes;
 
 /// <summary>
-/// Иконки изданий в боковой панели — свой пиксель-арт 16×16, нарисованный кодом (не файлы Mojang):
-/// Java — изометрический блок дёрна, Bedrock — блок дёрна сбоку, Dungeons — булыжник с лавой и мхом,
-/// Dungeons II — светящаяся синяя маска, Legends — синий кристалл. Показываются без сглаживания.
+/// Иконки изданий в боковой панели. Java и Bedrock — дёрн сбоку 8×8 из текстур Minecraft Alpha
+/// (скачиваются с серверов Mojang, см. AlphaTextures; без сети — своя текстура дёрна).
+/// Dungeons — булыжник с лавой и мхом, Dungeons II — светящаяся синяя маска, Legends — синий кристалл:
+/// свой пиксель-арт, нарисованный кодом. Показываются без сглаживания.
 /// </summary>
 public static class EditionIcons
 {
-    public static ImageSource Java { get; } = IsoGrassBlock();
-    public static ImageSource Bedrock { get; } = PixelTextures.Get(PixelTextureKind.GrassBlock);
+    /// <summary>
+    /// Дёрн сбоку 8×8: плитка 16×16 (4-я в первом ряду terrain.png Alpha) уменьшается вдвое выборкой
+    /// каждого второго пикселя — так остаются чистые цвета текстуры, без грязи от усреднения.
+    /// </summary>
+    public static BitmapSource GrassSide8(string? alphaTerrainPath)
+    {
+        var tile = new uint[16 * 16];
+        var loaded = false;
+        if (alphaTerrainPath is not null)
+        {
+            try
+            {
+                var terrain = new PngBitmapDecoder(new Uri(alphaTerrainPath), BitmapCreateOptions.IgnoreImageCache, BitmapCacheOption.OnLoad).Frames[0];
+                new FormatConvertedBitmap(terrain, PixelFormats.Bgra32, null, 0).CopyPixels(new Int32Rect(48, 0, 16, 16), tile, 16 * 4, 0);
+                loaded = true;
+            }
+            catch
+            {
+                // битый файл — своя текстура
+            }
+        }
+        if (!loaded)
+            new FormatConvertedBitmap(PixelTextures.Get(PixelTextureKind.GrassBlock), PixelFormats.Bgra32, null, 0).CopyPixels(tile, 16 * 4, 0);
+
+        var small = new uint[8 * 8];
+        for (var y = 0; y < 8; y++)
+        for (var x = 0; x < 8; x++)
+            small[y * 8 + x] = tile[y * 2 * 16 + x * 2];
+        var bmp = BitmapSource.Create(8, 8, 96, 96, PixelFormats.Bgra32, null, small, 8 * 4);
+        bmp.Freeze();
+        return bmp;
+    }
+
     public static ImageSource Dungeons { get; } = Draw(DungeonsPixel);
     public static ImageSource DungeonsII { get; } = Draw(DungeonsIIPixel);
     public static ImageSource Legends { get; } = Draw(LegendsPixel);
@@ -84,41 +116,5 @@ public static class EditionIcons
         if (upperLeft) return d < 4 ? Rgb(0x9E, 0xE7, 0xFF) : Rgb(0x5C, 0xC4, 0xFF);
         if (lowerRight) return d < 4 ? Rgb(0x3F, 0xA9, 0xF5) : Rgb(0x1E, 0x6F, 0xD9);
         return d < 4 ? Rgb(0x6F, 0xD0, 0xFF) : Rgb(0x2E, 0x8C, 0xEB);
-    }
-
-    // ---------------- Java: изометрический блок дёрна из пиксельных граней ----------------
-    private static BitmapSource GrassTop() => Draw((x, y) => Noise(x, y, 3) switch
-    {
-        < 20 => Rgb(0x5E, 0x9E, 0x3A),
-        < 65 => Rgb(0x72, 0xB8, 0x48),
-        _ => Rgb(0x86, 0xCC, 0x56),
-    });
-
-    private static ImageSource IsoGrassBlock()
-    {
-        var side = PixelTextures.Get(PixelTextureKind.GrassBlock);
-        var top = GrassTop();
-        const double w = 13.86, h = 8; // полуширина ромба и его полувысота (холст 32×32)
-
-        ImageDrawing Face(ImageSource img) => new(img, new Rect(0, 0, 1, 1));
-        GeometryDrawing Shade(byte alpha) => new(new SolidColorBrush(Color.FromArgb(alpha, 0, 0, 0)), null, new RectangleGeometry(new Rect(0, 0, 1, 1)));
-
-        DrawingGroup Mapped(Matrix m, ImageSource img, byte shade)
-        {
-            var g = new DrawingGroup { Transform = new MatrixTransform(m) };
-            g.Children.Add(Face(img));
-            if (shade > 0) g.Children.Add(Shade(shade));
-            return g;
-        }
-
-        var group = new DrawingGroup();
-        RenderOptions.SetBitmapScalingMode(group, BitmapScalingMode.NearestNeighbor);
-        group.Children.Add(Mapped(new Matrix(w, h, -w, h, 16, 0), top, 0));          // верх
-        group.Children.Add(Mapped(new Matrix(w, h, 0, 16, 16 - w, h), side, 0x30));  // левая грань
-        group.Children.Add(Mapped(new Matrix(w, -h, 0, 16, 16, 2 * h), side, 0x60));  // правая грань
-        group.Freeze();
-        var image = new DrawingImage(group);
-        image.Freeze();
-        return image;
     }
 }

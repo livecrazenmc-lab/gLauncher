@@ -91,7 +91,15 @@ public partial class MainViewModel : ObservableObject
         var updates = Settings.CheckForUpdates ? Updates.CheckOnStartupAsync() : Task.CompletedTask;
         await Task.WhenAll(Accounts.InitializeAsync(), Java.LoadVersionsAsync(), Content.ReloadAsync(), updates,
             SettingsPage.Credits.RefreshAsync(), Skins.InitializeAsync(), RefreshGamesAsync(), Accounts.LoadInitialFaceAsync(),
-            LoadArtsAsync());
+            LoadArtsAsync(), LoadGrassIconAsync());
+    }
+
+    /// <summary>Иконка Java и Bedrock в боковой панели: дёрн сбоку 8×8 из Minecraft Alpha.</summary>
+    [ObservableProperty] private System.Windows.Media.ImageSource grassIcon = EditionIcons.GrassSide8(AlphaTextures.Cached);
+
+    private async Task LoadGrassIconAsync()
+    {
+        if (await AlphaTextures.EnsureAsync(CancellationToken.None)) GrassIcon = EditionIcons.GrassSide8(AlphaTextures.Cached);
     }
 
     // --- Официальные арты игр для обложек (каталог Microsoft Store, кэш на диске) ---
